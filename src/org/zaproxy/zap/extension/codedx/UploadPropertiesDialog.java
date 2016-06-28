@@ -78,9 +78,9 @@ public class UploadPropertiesDialog {
 	public void openProperties(final UploadActionListener uploader){		
 		JPanel message = new JPanel(new GridBagLayout());
 		
-		serverUrl = labelTextField(Constant.messages.getString("codedx.settings.serverurl"), message,
+		serverUrl = labelTextField(Constant.messages.getString("codedx.settings.serverurl") + " ", message,
 				CodeDxProperties.getServerUrl());
-		apiKey = labelTextField(Constant.messages.getString("codedx.settings.apikey"), message,
+		apiKey = labelTextField(Constant.messages.getString("codedx.settings.apikey") + " ", message,
 				CodeDxProperties.getApiKey());
 		projectBox = createProjectComboBox(message);
 		

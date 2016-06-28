@@ -88,16 +88,16 @@ public class SSLConnectionSocketFactoryFactory {
 	    String OS = System.getProperty("os.name").toUpperCase();
 	    Path env;
 	    if (OS.contains("WIN")){
-	        env = Paths.get(System.getenv("APPDATA"),"Code Dx","Burp Extension");
+	        env = Paths.get(System.getenv("APPDATA"),"Code Dx","ZAP");
 	    }
 	    else if (OS.contains("MAC")){
-	        env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","Burp Extension");
+	        env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","ZAP");
 	    }
 	    else if (OS.contains("NUX")){
-	        env = Paths.get(System.getProperty("user.home"),".codedx","burp-extension");
+	        env = Paths.get(System.getProperty("user.home"),".codedx","zap");
 	    }
 	    else{
-	    	env = Paths.get(System.getProperty("user.dir"),"codedx","burp-extension");
+	    	env = Paths.get(System.getProperty("user.dir"),"codedx","zap");
 	    }
 	    
 		File keystoreDir = new File(env.toFile(),".usertrust");
@@ -121,7 +121,7 @@ public class SSLConnectionSocketFactoryFactory {
 	 * basis.
 	 * 
 	 * @param host
-	 * @param burpExtender
+	 * @param extension
 	 * @throws IOException
 	 * @throws GeneralSecurityException
 	 */

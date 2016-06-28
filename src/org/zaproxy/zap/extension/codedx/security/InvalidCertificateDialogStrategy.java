@@ -94,7 +94,7 @@ public class InvalidCertificateDialogStrategy implements InvalidCertificateStrat
 				message.add(fingerprint, gbc);
 				
 				gbc.gridx = 1;
-				message.add(new JLabel(toHexString(getSHA1(cert.getEncoded()), "")), gbc);
+				message.add(new JLabel(toHexString(getSHA1(cert.getEncoded()), " ")), gbc);
 			} catch (CertificateEncodingException e) {
 				// this shouldn't actually ever happen
 			}
@@ -104,7 +104,7 @@ public class InvalidCertificateDialogStrategy implements InvalidCertificateStrat
 			} catch (SSLException e) {
 				String cn = getCN(cert);
 
-				JLabel mismatch = new JLabel(Constant.messages.getString("codedx.ssl.mismatch"));
+				JLabel mismatch = new JLabel(Constant.messages.getString("codedx.ssl.mismatch") + " ");
 				mismatch.setFont(bold);
 				gbc.gridx = 0;
 				gbc.gridy += 1;
