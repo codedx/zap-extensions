@@ -149,29 +149,29 @@ public class UploadActionListener implements ActionListener{
 		ReportLastScanHttp saver = new ReportLastScanHttp();
 		saver.generate(report, extension.getModel());
 		
-	    String OS = System.getProperty("os.name").toUpperCase(Locale.getDefault());
-	    Path env;
-	    if (OS.contains("WIN")){
-	        env = Paths.get(System.getenv("APPDATA"),"Code Dx","ZAP");
-	    }
-	    else if (OS.contains("MAC")){
-	        env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","ZAP");
-	    }
-	    else if (OS.contains("NUX")){
-	        env = Paths.get(System.getProperty("user.home"),".codedx","ZAP");
-	    }
-	    else{
-	    	env = Paths.get(System.getProperty("user.dir"),"codedx","ZAP");
-	    }
-	    File reportFile = env.toFile();
-	    if(!reportFile.exists())
-	    	reportFile.mkdirs();
-	    
-	    reportFile = new File(reportFile, "ZAP.xml");
-	    if(reportFile.exists())
-	    	reportFile.delete();
-	    
-	    Files.write(reportFile.toPath(), report.toString().getBytes(), StandardOpenOption.CREATE_NEW);
+		String OS = System.getProperty("os.name").toUpperCase(Locale.getDefault());
+		Path env;
+		if (OS.contains("WIN")){
+			env = Paths.get(System.getenv("APPDATA"),"Code Dx","ZAP");
+		}
+		else if (OS.contains("MAC")){
+			env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","ZAP");
+		}
+		else if (OS.contains("NUX")){
+			env = Paths.get(System.getProperty("user.home"),".codedx","ZAP");
+		}
+		else{
+			env = Paths.get(System.getProperty("user.dir"),"codedx","ZAP");
+		}
+		File reportFile = env.toFile();
+		if(!reportFile.exists())
+			reportFile.mkdirs();
+		
+		reportFile = new File(reportFile, "ZAP.xml");
+		if(reportFile.exists())
+			reportFile.delete();
+		
+		Files.write(reportFile.toPath(), report.toString().getBytes(), StandardOpenOption.CREATE_NEW);
 		return reportFile;
 	}
 }
