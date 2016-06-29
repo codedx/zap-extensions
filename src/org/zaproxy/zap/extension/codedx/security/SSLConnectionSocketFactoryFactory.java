@@ -85,21 +85,21 @@ public class SSLConnectionSocketFactoryFactory {
 	 *         stored
 	 */
 	private static File getTrustStoreForHost(String host) {
-	    String OS = System.getProperty("os.name").toUpperCase();
-	    Path env;
-	    if (OS.contains("WIN")){
-	        env = Paths.get(System.getenv("APPDATA"),"Code Dx","ZAP");
-	    }
-	    else if (OS.contains("MAC")){
-	        env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","ZAP");
-	    }
-	    else if (OS.contains("NUX")){
-	        env = Paths.get(System.getProperty("user.home"),".codedx","zap");
-	    }
-	    else{
-	    	env = Paths.get(System.getProperty("user.dir"),"codedx","zap");
-	    }
-	    
+		String OS = System.getProperty("os.name").toUpperCase();
+		Path env;
+		if (OS.contains("WIN")){
+			env = Paths.get(System.getenv("APPDATA"),"Code Dx","ZAP");
+		}
+		else if (OS.contains("MAC")){
+			env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","ZAP");
+		}
+		else if (OS.contains("NUX")){
+			env = Paths.get(System.getProperty("user.home"),".codedx","zap");
+		}
+		else{
+			env = Paths.get(System.getProperty("user.dir"),"codedx","zap");
+		}
+		
 		File keystoreDir = new File(env.toFile(),".usertrust");
 		keystoreDir.mkdirs();
 

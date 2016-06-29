@@ -109,10 +109,10 @@ public class UploadPropertiesDialog {
 		popupThread.start();
 		updateThread.start();
 	}
-    
+	
 	private JTextField labelTextField(String label, Container cont, String base) {
 		createSettingsLabel(label, cont);
-    	
+		
 		JTextField textField = new JTextField(base, 30);
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 1;
@@ -151,7 +151,7 @@ public class UploadPropertiesDialog {
 	
 	private void createSettingsLabel(String label, Container cont){
 		JLabel labelField = new JLabel(label);
-    	labelField.setHorizontalAlignment(SwingConstants.LEFT);
+		labelField.setHorizontalAlignment(SwingConstants.LEFT);
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridwidth = 1;
 		gbc.gridx = 0;

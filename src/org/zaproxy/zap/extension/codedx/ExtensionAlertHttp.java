@@ -25,63 +25,63 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
 public class ExtensionAlertHttp extends ExtensionAlert {
 
-    public ExtensionAlertHttp() {
-    }
+	public ExtensionAlertHttp() {
+	}
 
-    @Override
-    public String getXml(SiteNode site) {
-        StringBuilder xml = new StringBuilder();
-        xml.append("<alerts>");
-        List<Alert> alerts = site.getAlerts();
-        for (Alert alert : alerts) {
-            if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
-                String urlParamXML = getUrlParamXML(alert);
-                xml.append(alert.toPluginXML(urlParamXML));
-            }
-        }
-        xml.append("</alerts>");
-        return xml.toString();
-    }
+	@Override
+	public String getXml(SiteNode site) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<alerts>");
+		List<Alert> alerts = site.getAlerts();
+		for (Alert alert : alerts) {
+			if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
+				String urlParamXML = getUrlParamXML(alert);
+				xml.append(alert.toPluginXML(urlParamXML));
+			}
+		}
+		xml.append("</alerts>");
+		return xml.toString();
+	}
 
-    private String getHTML(Alert alert) {
-        // gets HttpMessage request and response data from each alert and removes illegal and special characters
-        StringBuilder httpMessage = new StringBuilder();
+	private String getHTML(Alert alert) {
+		// gets HttpMessage request and response data from each alert and removes illegal and special characters
+		StringBuilder httpMessage = new StringBuilder();
 
-        String requestHeader = alert.getMessage().getRequestHeader().toString();
-        String requestBody = alert.getMessage().getRequestBody().toString();
-        String responseHeader = alert.getMessage().getResponseHeader().toString();
-        String responseBody = alert.getMessage().getResponseBody().toString();
+		String requestHeader = alert.getMessage().getRequestHeader().toString();
+		String requestBody = alert.getMessage().getRequestBody().toString();
+		String responseHeader = alert.getMessage().getResponseHeader().toString();
+		String responseBody = alert.getMessage().getResponseBody().toString();
 
-        httpMessage.append("<requestdata>");
-        httpMessage.append(ReportGenerator.entityEncode(requestHeader));
-        httpMessage.append(ReportGenerator.entityEncode(requestBody));
-        httpMessage.append("\n</requestdata>\n");
-        httpMessage.append("<responsedata>");
-        httpMessage.append(ReportGenerator.entityEncode(responseHeader));
-        httpMessage.append(ReportGenerator.entityEncode(responseBody));
-        httpMessage.append("\n</responsedata>\n");
+		httpMessage.append("<requestdata>");
+		httpMessage.append(ReportGenerator.entityEncode(requestHeader));
+		httpMessage.append(ReportGenerator.entityEncode(requestBody));
+		httpMessage.append("\n</requestdata>\n");
+		httpMessage.append("<responsedata>");
+		httpMessage.append(ReportGenerator.entityEncode(responseHeader));
+		httpMessage.append(ReportGenerator.entityEncode(responseBody));
+		httpMessage.append("\n</responsedata>\n");
 
-        return httpMessage.toString();
-    }
+		return httpMessage.toString();
+	}
 
-    public String getUrlParamXML(Alert alert) {
+	public String getUrlParamXML(Alert alert) {
 
-        String uri = alert.getUri();
-        String param = alert.getParam();
-        String attack = alert.getAttack();
-        String otherInfo = alert.getOtherInfo();
-        String evidence = alert.getEvidence();
+		String uri = alert.getUri();
+		String param = alert.getParam();
+		String attack = alert.getAttack();
+		String otherInfo = alert.getOtherInfo();
+		String evidence = alert.getEvidence();
 
-        StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
-        sb.append(getHTML(alert));
-        sb.append("  <uri>").append(ReportGenerator.entityEncode(uri)).append("</uri>\r\n");
-        sb.append("  <param>").append(ReportGenerator.entityEncode(param)).append("</param>\r\n");
-        sb.append("  <attack>").append(ReportGenerator.entityEncode(attack)).append("</attack>\r\n");
-        if (evidence != null && evidence.length() > 0) {
-            sb.append("  <evidence>").append(ReportGenerator.entityEncode(evidence)).append("</evidence>\r\n");
-        }
-        sb.append("  <otherinfo>").append(ReportGenerator.entityEncode(otherInfo)).append("</otherinfo>\r\n");
-        return sb.toString();
-    }
+		StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
+		sb.append(getHTML(alert));
+		sb.append("  <uri>").append(ReportGenerator.entityEncode(uri)).append("</uri>\r\n");
+		sb.append("  <param>").append(ReportGenerator.entityEncode(param)).append("</param>\r\n");
+		sb.append("  <attack>").append(ReportGenerator.entityEncode(attack)).append("</attack>\r\n");
+		if (evidence != null && evidence.length() > 0) {
+			sb.append("  <evidence>").append(ReportGenerator.entityEncode(evidence)).append("</evidence>\r\n");
+		}
+		sb.append("  <otherinfo>").append(ReportGenerator.entityEncode(otherInfo)).append("</otherinfo>\r\n");
+		return sb.toString();
+	}
 
 }

@@ -47,16 +47,16 @@ public class UploadActionListener implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-    	prop.openProperties(this);
+		prop.openProperties(this);
 	}
-    
+	
 	public void generateAndUploadReport(){
 		String error = null;
-        try {
-	        ReportLastScanHttp saver = new ReportLastScanHttp();
-	        final StringBuilder report = new StringBuilder();
-	        saver.generate(report, extension.getModel());
-	        
+		try {
+			ReportLastScanHttp saver = new ReportLastScanHttp();
+			final StringBuilder report = new StringBuilder();
+			saver.generate(report, extension.getModel());
+			
 			if(!"".equals(report.toString().trim()) && report.toString().split("\n").length > 2){
 				Thread uploadThread = new Thread(){
 					@Override
@@ -94,10 +94,10 @@ public class UploadActionListener implements ActionListener{
 							err = Constant.messages.getString("codedx.error.unexpected");
 							logger.error("Unexpected error while uploading report: ", ex1);
 						}
-			            if(msg != null)
-			            	View.getSingleton().showMessageDialog(msg);
-			            if(err != null)
-			            	View.getSingleton().showMessageDialog(err);
+						if(msg != null)
+							View.getSingleton().showMessageDialog(msg);
+						if(err != null)
+							View.getSingleton().showMessageDialog(err);
 					}
 				};
 				uploadThread.start();
@@ -108,8 +108,8 @@ public class UploadActionListener implements ActionListener{
 			error = Constant.messages.getString("codedx.error.failed");
 			logger.error("Unexpected error while generating report: ", ex2);
 		}
-        if(error != null)
-        	View.getSingleton().showWarningDialog(error);
+		if(error != null)
+			View.getSingleton().showWarningDialog(error);
 	}
 	
 	private HttpResponse sendData(byte[] data) throws IOException{
@@ -118,8 +118,8 @@ public class UploadActionListener implements ActionListener{
 			return null;
 		HttpPost post = new HttpPost(CodeDxProperties.getServerUrl() + "/api/projects/"
 				+ prop.getProject().getValue() + "/analysis");
-        post.setHeader("API-Key", CodeDxProperties.getApiKey());
-        
+		post.setHeader("API-Key", CodeDxProperties.getApiKey());
+		
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 		builder.addPart("file", new ByteArrayBody(data, ""));		
@@ -127,14 +127,14 @@ public class UploadActionListener implements ActionListener{
 		HttpEntity entity = builder.build();
 		post.setEntity(entity);
 
-	    HttpResponse response = client.execute(post);
-	    HttpEntity resEntity = response.getEntity();
-	    
-	    if (resEntity != null) {
-	    	EntityUtils.consume(resEntity);
-	    }
-	    client.close();
-	    
+		HttpResponse response = client.execute(post);
+		HttpEntity resEntity = response.getEntity();
+		
+		if (resEntity != null) {
+			EntityUtils.consume(resEntity);
+		}
+		client.close();
+		
 		return response;
 	}
 }

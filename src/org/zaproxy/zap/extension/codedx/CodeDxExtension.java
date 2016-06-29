@@ -45,73 +45,73 @@ public class CodeDxExtension extends ExtensionAdaptor {
 
 	private static final int TIMEOUT = 5000;
 	
-    // The name is public so that other extensions can access it
-    public static final String NAME = "CodeDxExtension";
+	// The name is public so that other extensions can access it
+	public static final String NAME = "CodeDxExtension";
 
-    private ZapMenuItem menuUpload = null;
-    private ZapMenuItem menuExport = null;
+	private ZapMenuItem menuUpload = null;
+	private ZapMenuItem menuExport = null;
 
-    public CodeDxExtension() {
-        super();
-        initialize();
-    }
+	public CodeDxExtension() {
+		super();
+		initialize();
+	}
 
-    private void initialize() {
-        this.setName(NAME);
-    }
+	private void initialize() {
+		this.setName(NAME);
+	}
 
-    @Override
-    public boolean canUnload() {
-        return true;
-    }
+	@Override
+	public boolean canUnload() {
+		return true;
+	}
 
-    @Override
-    public void hook(ExtensionHook extensionHook) {
-        super.hook(extensionHook);
+	@Override
+	public void hook(ExtensionHook extensionHook) {
+		super.hook(extensionHook);
 
-        if (getView() != null) {
-            extensionHook.getHookMenu().addReportMenuItem(getUploadMenu());
-            extensionHook.getHookMenu().addReportMenuItem(getExportMenu());
-        }
+		if (getView() != null) {
+			extensionHook.getHookMenu().addReportMenuItem(getUploadMenu());
+			extensionHook.getHookMenu().addReportMenuItem(getExportMenu());
+		}
 
-    }
+	}
 
-    public ZapMenuItem getUploadMenu() {
-        if (menuUpload == null) {
-        	menuUpload = new ZapMenuItem("codedx.topmenu.upload.title");
-        	menuUpload.addActionListener(new UploadActionListener(this));
-        }
-        return menuUpload;
-    }
-    
-    public ZapMenuItem getExportMenu() {
-        if (menuExport == null) {
-        	menuExport = new ZapMenuItem("codedx.topmenu.report.title");
+	public ZapMenuItem getUploadMenu() {
+		if (menuUpload == null) {
+			menuUpload = new ZapMenuItem("codedx.topmenu.upload.title");
+			menuUpload.addActionListener(new UploadActionListener(this));
+		}
+		return menuUpload;
+	}
+	
+	public ZapMenuItem getExportMenu() {
+		if (menuExport == null) {
+			menuExport = new ZapMenuItem("codedx.topmenu.report.title");
 
-        	menuExport.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    ReportLastScanHttp saver = new ReportLastScanHttp();
-                    saver.generateReport(getView(), getModel(), ReportType.XML);
-                }
-            });
-        }
-        return menuExport;
-    }
-    
-    public CloseableHttpClient getHttpClient(){
+			menuExport.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent ae) {
+					ReportLastScanHttp saver = new ReportLastScanHttp();
+					saver.generateReport(getView(), getModel(), ReportType.XML);
+				}
+			});
+		}
+		return menuExport;
+	}
+	
+	public CloseableHttpClient getHttpClient(){
 		try {
-	    	return getHttpClient(CodeDxProperties.getServerUrl());	
+			return getHttpClient(CodeDxProperties.getServerUrl());	
 		} catch (MalformedURLException e){
 			View.getSingleton().showWarningDialog(Constant.messages.getString("codedx.error.client.invalid"));
 		}
 		catch (IOException | GeneralSecurityException e) {
-	        View.getSingleton().showWarningDialog(Constant.messages.getString("codedx.error.client.failed"));
+			View.getSingleton().showWarningDialog(Constant.messages.getString("codedx.error.client.failed"));
 			logger.error("Error creating HTTP client: ", e);
 		}
 		return null;
-    }
-    
+	}
+	
 	public CloseableHttpClient getHttpClient(String url) throws IOException, GeneralSecurityException{	
 		RequestConfig config = RequestConfig.custom().setConnectTimeout(TIMEOUT).setSocketTimeout(TIMEOUT)
 				.setConnectionRequestTimeout(TIMEOUT).build();
@@ -120,18 +120,18 @@ public class CodeDxExtension extends ExtensionAdaptor {
 				.setDefaultRequestConfig(config).build();
 	}
 
-    @Override
-    public String getAuthor() {
-        return Constant.messages.getString("codedx.author");
-    }
+	@Override
+	public String getAuthor() {
+		return Constant.messages.getString("codedx.author");
+	}
 
-    @Override
-    public String getDescription() {
-        return Constant.messages.getString("codedx.desc");
-    }
+	@Override
+	public String getDescription() {
+		return Constant.messages.getString("codedx.desc");
+	}
 
-    @Override
-    public URL getURL() {
-        return null;
-    }
+	@Override
+	public URL getURL() {
+		return null;
+	}
 }

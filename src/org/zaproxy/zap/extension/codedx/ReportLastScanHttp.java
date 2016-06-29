@@ -21,12 +21,12 @@ import org.parosproxy.paros.model.SiteNode;
 
 public class ReportLastScanHttp extends ReportLastScan {
 
-    ReportLastScanHttp() {
-    }
+	ReportLastScanHttp() {
+	}
 
-    @Override
-    public StringBuilder getExtensionsXML(SiteNode site) {
-    	return new StringBuilder(new ExtensionAlertHttp().getXml(site));
-    }
+	@Override
+	public StringBuilder getExtensionsXML(SiteNode site) {
+		return new StringBuilder(new ExtensionAlertHttp().getXml(site));
+	}
 
 }
