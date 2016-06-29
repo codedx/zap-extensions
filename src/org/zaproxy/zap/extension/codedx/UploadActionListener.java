@@ -18,7 +18,13 @@ package org.zaproxy.zap.extension.codedx;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Locale;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -26,7 +32,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -53,9 +59,9 @@ public class UploadActionListener implements ActionListener{
 	public void generateAndUploadReport(){
 		String error = null;
 		try {
-			ReportLastScanHttp saver = new ReportLastScanHttp();
+			
 			final StringBuilder report = new StringBuilder();
-			saver.generate(report, extension.getModel());
+			final File reportFile = generateReport(report);
 			
 			if(!"".equals(report.toString().trim()) && report.toString().split("\n").length > 2){
 				Thread uploadThread = new Thread(){
@@ -65,7 +71,7 @@ public class UploadActionListener implements ActionListener{
 						String err = null;
 
 						try{
-							HttpResponse response = sendData(report.toString().getBytes());
+							HttpResponse response = sendData(reportFile);
 							StatusLine responseLine = null;
 							int responseCode = -1;
 							if(response != null){
@@ -98,6 +104,7 @@ public class UploadActionListener implements ActionListener{
 							View.getSingleton().showMessageDialog(msg);
 						if(err != null)
 							View.getSingleton().showMessageDialog(err);
+						reportFile.delete();
 					}
 				};
 				uploadThread.start();
@@ -112,7 +119,7 @@ public class UploadActionListener implements ActionListener{
 			View.getSingleton().showWarningDialog(error);
 	}
 	
-	private HttpResponse sendData(byte[] data) throws IOException{
+	private HttpResponse sendData(File report) throws IOException{
 		CloseableHttpClient client = extension.getHttpClient();
 		if(client == null)
 			return null;
@@ -122,7 +129,7 @@ public class UploadActionListener implements ActionListener{
 		
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-		builder.addPart("file", new ByteArrayBody(data, ""));		
+		builder.addPart("file", new FileBody(report));		
 		
 		HttpEntity entity = builder.build();
 		post.setEntity(entity);
@@ -136,5 +143,35 @@ public class UploadActionListener implements ActionListener{
 		client.close();
 		
 		return response;
+	}
+	
+	private File generateReport(StringBuilder report) throws Exception{
+		ReportLastScanHttp saver = new ReportLastScanHttp();
+		saver.generate(report, extension.getModel());
+		
+	    String OS = System.getProperty("os.name").toUpperCase(Locale.getDefault());
+	    Path env;
+	    if (OS.contains("WIN")){
+	        env = Paths.get(System.getenv("APPDATA"),"Code Dx","ZAP");
+	    }
+	    else if (OS.contains("MAC")){
+	        env = Paths.get(System.getProperty("user.home"),"Library","Application Support","Code Dx","ZAP");
+	    }
+	    else if (OS.contains("NUX")){
+	        env = Paths.get(System.getProperty("user.home"),".codedx","ZAP");
+	    }
+	    else{
+	    	env = Paths.get(System.getProperty("user.dir"),"codedx","ZAP");
+	    }
+	    File reportFile = env.toFile();
+	    if(!reportFile.exists())
+	    	reportFile.mkdirs();
+	    
+	    reportFile = new File(reportFile, "ZAP.xml");
+	    if(reportFile.exists())
+	    	reportFile.delete();
+	    
+	    Files.write(reportFile.toPath(), report.toString().getBytes(), StandardOpenOption.CREATE_NEW);
+		return reportFile;
 	}
 }
