@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -67,7 +68,7 @@ public class UploadPropertiesDialog {
 	private JComboBox<NameValuePair> projectBox;
 	private JDialog dialog;
 	
-	private NameValuePair[] projectArr = new BasicNameValuePair[0];
+	private ModifiedNameValuePair[] projectArr = new ModifiedNameValuePair[0];
 	
 	private CodeDxExtension extension;
 	
@@ -168,7 +169,7 @@ public class UploadPropertiesDialog {
 		dialog.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 		CloseableHttpClient client = null;
 		BufferedReader rd = null;
-		projectArr = new BasicNameValuePair[0];
+		projectArr = new ModifiedNameValuePair[0];
 		try{
 			client = extension.getHttpClient(getServerUrl());
 			if(client != null){
@@ -189,7 +190,7 @@ public class UploadPropertiesDialog {
 					JSONObject obj = (JSONObject)parser.parse(result.toString());
 					JSONArray projects = (JSONArray)obj.get("projects");
 					
-					projectArr = new NameValuePair[projects.size()];
+					projectArr = new ModifiedNameValuePair[projects.size()];
 					for(int i = 0; i < projectArr.length; i++){
 						JSONObject project = (JSONObject)projects.get(i);
 						int id = ((Long)project.get("id")).intValue();
@@ -198,8 +199,18 @@ public class UploadPropertiesDialog {
 					}
 				}
 				
-				if(projectArr.length == 0 && !initialRefresh)
-					warn(Constant.messages.getString("codedx.refresh.noproject"));
+				if(projectArr.length == 0){
+					if(!initialRefresh) warn(Constant.messages.getString("codedx.refresh.noproject"));
+				} else {
+					Arrays.sort(projectArr);
+					//set the project ids to visible if the names are the same
+					for(int i = 0; i < projectArr.length-1; i++){
+						if(projectArr[i].getName() != null && projectArr[i].getName().equals(projectArr[i+1].getName())){
+							projectArr[i].setUseId(true);
+							projectArr[i+1].setUseId(true);
+						}
+					}
+				}
 			}
 		} catch (GeneralSecurityException | ParseException | IOException e){
 			if(!initialRefresh){
@@ -250,14 +261,27 @@ public class UploadPropertiesDialog {
 		return apiKey.getText();
 	}
 	
-	private static class ModifiedNameValuePair extends BasicNameValuePair{
+	private static class ModifiedNameValuePair extends BasicNameValuePair implements Comparable<ModifiedNameValuePair>{
 		private static final long serialVersionUID = -6671681121783779976L;
+		private boolean useId = false;
 		public ModifiedNameValuePair(String name, String value) {
 			super(name, value);
 		}
+		public void setUseId(boolean useId){
+			this.useId = useId;
+		}
 		@Override
 		public String toString(){
-			return getName() + " (id: " + getValue() + ")";
+			if(useId)
+				return getName() + " (id: " + getValue() + ")";
+			return getName();
+		}
+		@Override
+		public int compareTo(ModifiedNameValuePair o) {
+			int val = this.getName().compareTo(((NameValuePair)o).getName());
+			if(val == 0)
+				return this.getValue().compareTo(((NameValuePair)o).getValue());
+			return val;
 		}
 	}
 }
