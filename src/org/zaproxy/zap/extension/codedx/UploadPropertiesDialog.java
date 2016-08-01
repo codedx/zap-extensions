@@ -184,32 +184,18 @@ public class UploadPropertiesDialog {
 					result.append(line);
 				}
 	
-				if(!"".equals(result.toString().trim()) && !"Insufficient Permissions".equals(result.toString().trim())){
-					JSONParser parser = new JSONParser();
-					
-					JSONObject obj = (JSONObject)parser.parse(result.toString());
-					JSONArray projects = (JSONArray)obj.get("projects");
-					
-					projectArr = new ModifiedNameValuePair[projects.size()];
-					for(int i = 0; i < projectArr.length; i++){
-						JSONObject project = (JSONObject)projects.get(i);
-						int id = ((Long)project.get("id")).intValue();
-						String name = (String)project.get("name");
-						projectArr[i] = new ModifiedNameValuePair(name,Integer.toString(id));
-					}
-				}
-				
-				if(projectArr.length == 0){
-					if(!initialRefresh) warn(Constant.messages.getString("codedx.refresh.noproject"));
-				} else {
-					Arrays.sort(projectArr);
-					//set the project ids to visible if the names are the same
-					for(int i = 0; i < projectArr.length-1; i++){
-						if(projectArr[i].getName() != null && projectArr[i].getName().equals(projectArr[i+1].getName())){
-							projectArr[i].setUseId(true);
-							projectArr[i+1].setUseId(true);
-						}
-					}
+				int code = response.getStatusLine().getStatusCode();
+				if(code == 200){
+					projectArr = parseProjectJson(result.toString(), initialRefresh);
+				} else if (!initialRefresh) {
+					String msg = Constant.messages.getString("codedx.refresh.non200") + ' ' + response.getStatusLine() + '.';
+					if(code == 403)
+						msg += Constant.messages.getString("codedx.refresh.403");
+					else if(code == 404)
+						msg += Constant.messages.getString("codedx.refresh.404");
+					else if(code == 400)
+						msg += Constant.messages.getString("codedx.refresh.400");
+					error(msg);
 				}
 			}
 		} catch (GeneralSecurityException | ParseException | IOException e){
@@ -228,6 +214,32 @@ public class UploadPropertiesDialog {
 		}
 		updateProjectComboBox();
 		dialog.setCursor(Cursor.getDefaultCursor());
+	}
+	
+	private ModifiedNameValuePair[] parseProjectJson(String json, boolean initialRefresh) throws ParseException{
+		JSONParser parser = new JSONParser();
+		JSONObject obj = (JSONObject)parser.parse(json);
+		JSONArray projects = (JSONArray)obj.get("projects");
+		
+		ModifiedNameValuePair[] projectArr = new ModifiedNameValuePair[projects.size()];
+		for(int i = 0; i < projectArr.length; i++){
+			JSONObject project = (JSONObject)projects.get(i);
+			int id = ((Long)project.get("id")).intValue();
+			String name = (String)project.get("name");
+			projectArr[i] = new ModifiedNameValuePair(name,Integer.toString(id));
+		}
+		if(projectArr.length > 0) {
+			Arrays.sort(projectArr);
+			//set the project ids to visible if the names are the same
+			for(int i = 0; i < projectArr.length-1; i++){
+				if(projectArr[i].getName() != null && projectArr[i].getName().equals(projectArr[i+1].getName())){
+					projectArr[i].setUseId(true);
+					projectArr[i+1].setUseId(true);
+				}
+			}
+		} else if (!initialRefresh)
+			warn(Constant.messages.getString("codedx.refresh.noproject"));
+		return projectArr;
 	}
 	
 	public void updateProjectComboBox(){
