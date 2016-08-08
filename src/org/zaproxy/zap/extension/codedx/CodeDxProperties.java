@@ -36,7 +36,7 @@ public class CodeDxProperties {
 	
 	public static String getServerUrl(){	
 		String text = getProperty(KEY_SERVER);
-		if(text.endsWith("/"))
+		if(text != null && text.endsWith("/"))
 			return text.substring(0, text.length()-1);
 		return text;
 	}
