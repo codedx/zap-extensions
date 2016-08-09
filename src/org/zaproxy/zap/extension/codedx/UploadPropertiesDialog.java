@@ -94,7 +94,7 @@ public class UploadPropertiesDialog {
 			public void run(){								
 				dialog.setVisible(true);
 				if (dialogButtons[0].equals(pane.getValue())) {
-					CodeDxProperties.setProperties(serverUrl.getText(), apiKey.getText());
+					CodeDxProperties.setProperties(serverUrl.getText(), apiKey.getText(), getProject().getValue());
 					uploader.generateAndUploadReport();
 				}
 			}
@@ -104,6 +104,11 @@ public class UploadPropertiesDialog {
 			public void run(){
 				if(!"".equals(serverUrl.getText()) && !"".equals(apiKey.getText())){
 					updateProjects(true);
+					String previousId = CodeDxProperties.getSelectedId();
+					for(NameValuePair p: projectArr){
+						if(previousId.equals(p.getValue()))
+							projectBox.setSelectedItem(p);
+					}
 				}
 			}
 		};
@@ -247,9 +252,14 @@ public class UploadPropertiesDialog {
 	
 	public void updateProjectComboBox(){
 		if(projectBox != null){
+			NameValuePair selected = getProject();
 			projectBox.removeAllItems();
-			for(NameValuePair p: projectArr)
+			for(NameValuePair p: projectArr){
 				projectBox.addItem(p);
+				if(selected != null && selected.equals(p)){
+					projectBox.setSelectedItem(p);
+				}
+			}
 		}
 	}
 	

@@ -32,11 +32,12 @@ public class CodeDxProperties {
 	private static String PROP_FILE = "codedx.properties";
 	private static String KEY_SERVER = "serverUrl";
 	private static String KEY_API = "apiKey";
+	private static String KEY_SELECTED = "selectedId";
 	private static Properties prop;
 	
 	public static String getServerUrl(){	
 		String text = getProperty(KEY_SERVER);
-		if(text != null && text.endsWith("/"))
+		if(text.endsWith("/"))
 			return text.substring(0, text.length()-1);
 		return text;
 	}
@@ -45,17 +46,23 @@ public class CodeDxProperties {
 		return getProperty(KEY_API);
 	}
 	
+	public static String getSelectedId(){
+		return getProperty(KEY_SELECTED);
+	}
+	
 	private static String getProperty(String key){
 		if(prop == null)
 			loadProperties();
-		return prop.getProperty(key);
+		String value = prop.getProperty(key); 
+		return value == null ? "" : value;
 	}
 	
-	public static void setProperties(String server, String api){
+	public static void setProperties(String server, String api, String selectedId){
 		if(prop == null)
 			loadProperties();
 		prop.setProperty(KEY_SERVER, server);
 		prop.setProperty(KEY_API, api);
+		prop.setProperty(KEY_SELECTED, selectedId);
 		saveProperties();
 	}
 	
