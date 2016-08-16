@@ -26,47 +26,55 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
-public class CodeDxProperties {
+public class CodeDxProperties {	
+	private static class Holder {
+		static final CodeDxProperties INSTANCE = new CodeDxProperties();
+	}
+	
+	public static CodeDxProperties getInstance(){
+		return Holder.INSTANCE;
+	}
+	
+	private CodeDxProperties(){
+		loadProperties();
+	}
+	
 	private static final Logger logger = Logger.getLogger(CodeDxProperties.class);
 	
 	private static String PROP_FILE = "codedx.properties";
 	private static String KEY_SERVER = "serverUrl";
 	private static String KEY_API = "apiKey";
 	private static String KEY_SELECTED = "selectedId";
-	private static Properties prop;
+	private Properties prop;
 	
-	public static String getServerUrl(){	
+	public String getServerUrl(){	
 		String text = getProperty(KEY_SERVER);
 		if(text.endsWith("/"))
 			return text.substring(0, text.length()-1);
 		return text;
 	}
 	
-	public static String getApiKey(){
+	public String getApiKey(){
 		return getProperty(KEY_API);
 	}
 	
-	public static String getSelectedId(){
+	public String getSelectedId(){
 		return getProperty(KEY_SELECTED);
 	}
 	
-	private static String getProperty(String key){
-		if(prop == null)
-			loadProperties();
+	private String getProperty(String key){
 		String value = prop.getProperty(key); 
 		return value == null ? "" : value;
 	}
 	
-	public static void setProperties(String server, String api, String selectedId){
-		if(prop == null)
-			loadProperties();
+	public void setProperties(String server, String api, String selectedId){
 		prop.setProperty(KEY_SERVER, server);
 		prop.setProperty(KEY_API, api);
 		prop.setProperty(KEY_SELECTED, selectedId);
 		saveProperties();
 	}
 	
-	private static void loadProperties(){
+	private void loadProperties(){
 		if(prop == null)
 			prop = new Properties();
 		
@@ -88,10 +96,7 @@ public class CodeDxProperties {
 		}
 	}
 	
-	private static void saveProperties(){
-		if(prop == null)
-			loadProperties();
-		
+	private void saveProperties(){		
 		File f = Paths.get(Constant.getZapHome(), PROP_FILE).toFile();
 		try(FileOutputStream out = new FileOutputStream(f)){
 			prop.store(out, null);

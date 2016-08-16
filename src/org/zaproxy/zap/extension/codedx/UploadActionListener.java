@@ -123,9 +123,9 @@ public class UploadActionListener implements ActionListener{
 		CloseableHttpClient client = extension.getHttpClient();
 		if(client == null)
 			return null;
-		HttpPost post = new HttpPost(CodeDxProperties.getServerUrl() + "/api/projects/"
+		HttpPost post = new HttpPost(CodeDxProperties.getInstance().getServerUrl() + "/api/projects/"
 				+ prop.getProject().getValue() + "/analysis");
-		post.setHeader("API-Key", CodeDxProperties.getApiKey());
+		post.setHeader("API-Key", CodeDxProperties.getInstance().getApiKey());
 		
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);

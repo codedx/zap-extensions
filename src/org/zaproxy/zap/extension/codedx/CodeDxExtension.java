@@ -101,7 +101,7 @@ public class CodeDxExtension extends ExtensionAdaptor {
 	
 	public CloseableHttpClient getHttpClient(){
 		try {
-			return getHttpClient(CodeDxProperties.getServerUrl());	
+			return getHttpClient(CodeDxProperties.getInstance().getServerUrl());	
 		} catch (MalformedURLException e){
 			View.getSingleton().showWarningDialog(Constant.messages.getString("codedx.error.client.invalid"));
 		}

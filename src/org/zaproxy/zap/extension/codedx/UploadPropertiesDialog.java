@@ -80,9 +80,9 @@ public class UploadPropertiesDialog {
 		JPanel message = new JPanel(new GridBagLayout());
 		
 		serverUrl = labelTextField(Constant.messages.getString("codedx.settings.serverurl") + " ", message,
-				CodeDxProperties.getServerUrl());
+				CodeDxProperties.getInstance().getServerUrl());
 		apiKey = labelTextField(Constant.messages.getString("codedx.settings.apikey") + " ", message,
-				CodeDxProperties.getApiKey());
+				CodeDxProperties.getInstance().getApiKey());
 		projectBox = createProjectComboBox(message);
 		
 		final JOptionPane pane = new JOptionPane(message, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null,
@@ -94,7 +94,7 @@ public class UploadPropertiesDialog {
 			public void run(){								
 				dialog.setVisible(true);
 				if (dialogButtons[0].equals(pane.getValue())) {
-					CodeDxProperties.setProperties(serverUrl.getText(), apiKey.getText(), getProject().getValue());
+					CodeDxProperties.getInstance().setProperties(serverUrl.getText(), apiKey.getText(), getProject().getValue());
 					uploader.generateAndUploadReport();
 				}
 			}
@@ -104,7 +104,7 @@ public class UploadPropertiesDialog {
 			public void run(){
 				if(!"".equals(serverUrl.getText()) && !"".equals(apiKey.getText())){
 					updateProjects(true);
-					String previousId = CodeDxProperties.getSelectedId();
+					String previousId = CodeDxProperties.getInstance().getSelectedId();
 					for(NameValuePair p: projectArr){
 						if(previousId.equals(p.getValue()))
 							projectBox.setSelectedItem(p);
