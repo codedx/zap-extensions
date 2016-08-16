@@ -63,7 +63,7 @@ public class UploadActionListener implements ActionListener{
 			final StringBuilder report = new StringBuilder();
 			final File reportFile = generateReport(report);
 			
-			if(!"".equals(report.toString().trim()) && report.toString().split("\n").length > 2){
+			if(report.toString().trim().split("\n").length > 2){
 				Thread uploadThread = new Thread(){
 					@Override
 					public void run(){
