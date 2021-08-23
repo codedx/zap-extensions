@@ -32,7 +32,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.codedx.ReportLastScan.ReportType;
 import org.zaproxy.zap.extension.codedx.security.SSLConnectionSocketFactoryFactory;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -50,7 +49,6 @@ public class CodeDxExtension extends ExtensionAdaptor {
     public static final String NAME = "CodeDxExtension";
 
     private ZapMenuItem menuUpload = null;
-    private ZapMenuItem menuExport = null;
 
     public CodeDxExtension() {
         super(NAME);
@@ -68,9 +66,7 @@ public class CodeDxExtension extends ExtensionAdaptor {
         API.getInstance().registerApiImplementor(cdxAPIImpl);
         if (getView() != null) {
             extensionHook.getHookMenu().addReportMenuItem(getUploadMenu());
-            extensionHook.getHookMenu().addReportMenuItem(getExportMenu());
         }
-
     }
 
     @Override
@@ -84,18 +80,6 @@ public class CodeDxExtension extends ExtensionAdaptor {
             menuUpload.addActionListener(new UploadActionListener(this));
         }
         return menuUpload;
-    }
-    
-    public ZapMenuItem getExportMenu() {
-        if (menuExport == null) {
-            menuExport = new ZapMenuItem("codedx.topmenu.report.title");
-
-            menuExport.addActionListener(e -> {
-                    ReportLastScanHttp saver = new ReportLastScanHttp();
-                    saver.generateReport(getView(), ReportType.XML);
-                });
-        }
-        return menuExport;
     }
     
     public CloseableHttpClient getHttpClient(){

@@ -14,6 +14,8 @@ import org.zaproxy.zap.extension.api.ApiView;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 
 public class CodeDxAPI extends ApiImplementor {
@@ -120,9 +122,8 @@ public class CodeDxAPI extends ApiImplementor {
 	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
 		if(VIEW_GENERATE.equals(name)) {
 			try {
-				StringBuilder report = new StringBuilder();
-				UploadActionListener.generateReportString(extension, report);
-				return new ApiResponseElement(name, report.toString());
+				File reportFile = UploadActionListener.generateReportFile(extension);
+				return new ApiResponseElement(name, new String(Files.readAllBytes(reportFile.toPath()), StandardCharsets.UTF_8));
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
 				throw new ApiException(Type.INTERNAL_ERROR, e.getMessage());

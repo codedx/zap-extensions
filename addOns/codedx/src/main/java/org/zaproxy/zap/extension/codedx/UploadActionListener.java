@@ -42,8 +42,9 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.codedx.ReportLastScan.ReportType;
+import org.zaproxy.addon.reports.ExtensionReports;
 
 public class UploadActionListener implements ActionListener{
 
@@ -55,6 +56,8 @@ public class UploadActionListener implements ActionListener{
 		xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
 		xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 	}
+
+	private static ExtensionReports extReport;
 
 	private CodeDxExtension extension;
 	private UploadPropertiesDialog prop;
@@ -182,18 +185,22 @@ public class UploadActionListener implements ActionListener{
 			client.close();
 		}
 	}
-	
-	public static void generateReportString(CodeDxExtension extension, StringBuilder report) throws Exception {
-		ReportLastScanHttp saver = new ReportLastScanHttp();
-		saver.generate(report);
+
+	private static ExtensionReports getExtReport() {
+		if (extReport == null) {
+			extReport =
+					Control.getSingleton()
+							.getExtensionLoader()
+							.getExtension(ExtensionReports.class);
+		}
+		return extReport;
 	}
 
 	public static File generateReportFile(CodeDxExtension extension) throws Exception {
 		File reportFile = File.createTempFile("codedx-zap-report", ".xml");
 		reportFile.deleteOnExit();
 
-		ReportLastScanHttp saver = new ReportLastScanHttp();
-		saver.generate(reportFile.getCanonicalPath(), ReportType.XML);
+		getExtReport().generateReport("codedx-xml", reportFile.getAbsolutePath(), "", "", false);
 
 		return reportFile;
 	}

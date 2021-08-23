@@ -7,10 +7,20 @@ zapAddOn {
     manifest {
         author.set("Code Dx, Inc.")
         url.set("https://www.zaproxy.org/docs/desktop/addons/code-dx/")
+
+        dependencies {
+            addOns {
+                register("reports") {
+                    version.set(">= 0.5.0")
+                }
+            }
+        }
     }
 }
 
 dependencies {
+    compileOnly(parent!!.childProjects.get("reports")!!)
+
     implementation("org.apache.httpcomponents:httpmime:4.5.2")
     implementation("com.googlecode.json-simple:json-simple:1.1.1") {
         // Not needed.

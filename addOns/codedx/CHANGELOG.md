@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Change info URL to link to the site.
 - Maintenance changes.
 - Change to no longer rely on core report classes, which are going to be deleted.
+- Switch to Report Generation add-on for generating reports
 
 ## [8] - 2019-08-23
 
