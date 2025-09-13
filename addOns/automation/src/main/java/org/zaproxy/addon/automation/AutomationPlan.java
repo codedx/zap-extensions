@@ -53,6 +53,7 @@ public class AutomationPlan {
     private boolean changed = false;
     private Date started;
     private Date finished;
+    private boolean stopping;
 
     private static final Logger LOGGER = LogManager.getLogger(AutomationPlan.class);
     private static final ObjectMapper YAML_OBJECT_MAPPER;
@@ -103,7 +104,7 @@ public class AutomationPlan {
                 }
                 LinkedHashMap<?, ?> jobData = (LinkedHashMap<?, ?>) jobObj;
 
-                Object jobType = jobData.get("type");
+                Object jobType = jobData.remove("type");
                 if (jobType == null) {
                     progress.error(
                             Constant.messages.getString("automation.error.job.notype", jobType));
@@ -113,7 +114,7 @@ public class AutomationPlan {
                 if (job != null) {
                     try {
                         job = job.newJob();
-                        Object jobName = jobData.get("name");
+                        Object jobName = jobData.remove("name");
                         if (jobName != null) {
                             if (jobName instanceof String) {
                                 job.setName((String) jobName);
@@ -132,7 +133,7 @@ public class AutomationPlan {
                             continue;
                         }
 
-                        Object jobEnabled = jobData.get("enabled");
+                        Object jobEnabled = jobData.remove("enabled");
                         if (jobEnabled != null) {
                             if (jobEnabled instanceof Boolean enableBool) {
                                 job.setEnabled(enableBool);
@@ -143,7 +144,7 @@ public class AutomationPlan {
                             }
                         }
 
-                        Object alwaysRun = jobData.get("alwaysRun");
+                        Object alwaysRun = jobData.remove("alwaysRun");
                         if (alwaysRun != null) {
                             if (alwaysRun instanceof Boolean jobBool) {
                                 job.setAlwaysRun(jobBool);
@@ -291,6 +292,7 @@ public class AutomationPlan {
 
     void setStarted(Date started) {
         this.started = started;
+        this.stopping = false;
     }
 
     void setFinished(Date finished) {
@@ -303,6 +305,15 @@ public class AutomationPlan {
 
     public Date getFinished() {
         return finished;
+    }
+
+    public boolean isStopping() {
+        return stopping;
+    }
+
+    public void stopPlan() {
+        this.stopping = true;
+        getJobs().forEach(AutomationJob::stop);
     }
 
     public String toYaml() throws IOException {

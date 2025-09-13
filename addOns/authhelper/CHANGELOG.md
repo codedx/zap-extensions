@@ -5,18 +5,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 ### Added
+- Add login word variant for Spanish.
+- Log exception during authentication with diagnostics enabled.
+- Add the statistics of the site of the verification URL to the Authentication Report.
+
+### Changed
+- Search also for login elements with ARIA role button.
+- Show always the diagnostic HTTP messages in the Sites tree and History tab when importing the Authentication Report.
+- Include the site in the site statistics of the Authentication Report.
+
+### Fixed
+- Collect the current value of the element's attributes for the authentication diagnostics.
+
+## [0.28.0] - 2025-09-02
+### Added
 - Add wait authentication step to Browser Based Authentication.
 - Include Web Element's selector in the Authentication Report.
 - Support for tracking authentication and CSRF headers automatically for Header based auth.
-- Add Authentication Report section for the log file.
+- Add Authentication Report section for the log file and for the Automation Framework plan.
 - Support for step delay in Browser Based Authentication, which replaces the auth tester "demo mode".
 - Support for min wait for time in Client Script Authentication.
+- Allow to manage the authentication diagnostics through the GUI.
 
 ## Changed
+- Now depends on minimum Common Library version 1.35.0 and Zest version 48.9.0.
 - Send the referer header on verification if set on the original request.
+- Removed requirement to set at least one header in the GUI for Header-Based Session Management.
+- Include step for errors in the authentication diagnostics.
+- Include messages' RTT in the Authentication Report.
+- Browser based authentication to also support HTTP basic authentication for Firefox.
+- Verification rule to improve detection.
+- Add support for Microsoft login in Browser Based Authentication.
+- Consider login like URLs as candidates for verification URL.
 
 ### Fixed
 - Do not fail the authentication on diagnostic errors.
+- Do not configure poll authentication verification without logged in indicator.
+- Handle errors collecting the browser storage diagnostics.
+- Fix proxy errors during authentication with Client Script Based Authentication.
 
 ## [0.27.0] - 2025-07-03
 ### Added
@@ -270,6 +296,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Support of authentication request identification and configuration.
 
+[0.28.0]: https://github.com/zaproxy/zap-extensions/releases/authhelper-v0.28.0
 [0.27.0]: https://github.com/zaproxy/zap-extensions/releases/authhelper-v0.27.0
 [0.26.0]: https://github.com/zaproxy/zap-extensions/releases/authhelper-v0.26.0
 [0.25.0]: https://github.com/zaproxy/zap-extensions/releases/authhelper-v0.25.0

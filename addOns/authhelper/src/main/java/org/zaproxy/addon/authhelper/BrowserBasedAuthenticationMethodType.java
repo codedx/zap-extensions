@@ -122,6 +122,7 @@ public class BrowserBasedAuthenticationMethodType extends AuthenticationMethodTy
 
     public static final String DEFAULT_BROWSER_ID = Browser.FIREFOX_HEADLESS.getId();
     private static final int DEFAULT_PAGE_WAIT = 5;
+    private static final int DEFAULT_STEP_DELAY = 0;
 
     private static final Logger LOGGER =
             LogManager.getLogger(BrowserBasedAuthenticationMethodType.class);
@@ -337,7 +338,7 @@ public class BrowserBasedAuthenticationMethodType extends AuthenticationMethodTy
                                     proxyHost,
                                     proxyPort);
 
-                    if (AuthUtils.authenticateAsUserImpl(
+                    if (AuthUtils.authenticateAsUserWithErrorStep(
                             diags,
                             wd,
                             user,
@@ -417,6 +418,7 @@ public class BrowserBasedAuthenticationMethodType extends AuthenticationMethodTy
 
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
+                diags.recordErrorStep(null);
             }
 
             // Code based on Authentication.notifyOutputAuthFailure
@@ -655,7 +657,8 @@ public class BrowserBasedAuthenticationMethodType extends AuthenticationMethodTy
             throw new ConfigurationException(e);
         }
         try {
-            method.setStepDelay(config.getInt(CONTEXT_CONFIG_AUTH_BROWSER_STEPDELAY));
+            method.setStepDelay(
+                    config.getInt(CONTEXT_CONFIG_AUTH_BROWSER_STEPDELAY, DEFAULT_STEP_DELAY));
         } catch (Exception e) {
             throw new ConfigurationException(e);
         }
@@ -835,7 +838,7 @@ public class BrowserBasedAuthenticationMethodType extends AuthenticationMethodTy
             this.add(loginUrlWait, LayoutHelper.getGBC(1, y, 1, 1.0d, 0.0d));
             y++;
 
-            stepDelay = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
+            stepDelay = new ZapNumberSpinner(0, DEFAULT_STEP_DELAY, Integer.MAX_VALUE);
             JLabel stepDelayLabel =
                     new JLabel(
                             Constant.messages.getString(

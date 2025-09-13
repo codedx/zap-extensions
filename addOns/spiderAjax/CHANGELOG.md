@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 
 
+## [23.26.0] - 2025-09-02
+### Added
+- Support for stopping the spiderAjax automation job.
+
 ## [23.25.0] - 2025-07-10
 ### Fixed
 - Correct configuration key for Logout Avoidance (Issue 8994).
@@ -358,6 +362,7 @@ By default it allows files with extension `.js` and `.css`.
 
 
 
+[23.26.0]: https://github.com/zaproxy/zap-extensions/releases/spiderAjax-v23.26.0
 [23.25.0]: https://github.com/zaproxy/zap-extensions/releases/spiderAjax-v23.25.0
 [23.24.0]: https://github.com/zaproxy/zap-extensions/releases/spiderAjax-v23.24.0
 [23.23.0]: https://github.com/zaproxy/zap-extensions/releases/spiderAjax-v23.23.0

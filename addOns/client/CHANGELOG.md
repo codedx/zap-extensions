@@ -4,11 +4,17 @@ All notable changes to this add-on will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
+
+
+## [0.17.0] - 2025-09-02
 ### Added
 - Edge recorder link to help.
+- Support for stopping the spiderCient automation job.
+- Support for configuring the client passive scan rules via the passiveScan-config Automation Framework job. This add-on now depends on the pscan add-on.
 
 ### Changed
-- Updated Chrome and Firefox extensions to v0.1.5.
+- Updated Chrome and Firefox extensions to v0.1.6.
+- Reduce warnings when passive scanning.
 
 ### Fixed
 - Error logs to always include stack trace.
@@ -156,6 +162,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First version.
 
+[0.17.0]: https://github.com/zaproxy/zap-extensions/releases/client-v0.17.0
 [0.16.0]: https://github.com/zaproxy/zap-extensions/releases/client-v0.16.0
 [0.15.0]: https://github.com/zaproxy/zap-extensions/releases/client-v0.15.0
 [0.14.0]: https://github.com/zaproxy/zap-extensions/releases/client-v0.14.0
