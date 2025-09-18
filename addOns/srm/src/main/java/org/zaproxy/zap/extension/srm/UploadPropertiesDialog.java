@@ -42,7 +42,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import java.net.URL;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -163,10 +162,10 @@ public class UploadPropertiesDialog {
 		JButton refresh = new JButton(REFRESH_ICON);
 		refresh.setPreferredSize(new Dimension(REFRESH_ICON.getIconHeight()+6,REFRESH_ICON.getIconHeight()+6));
 		refresh.addActionListener(e -> {
-			if ("".equals(serverUrl.getText()) || "".equals(apiKey.getText())) {
-				error(Constant.messages.getString("srm.error.required"));
-				return;
-			}
+				if ("".equals(serverUrl.getText()) || "".equals(apiKey.getText())) {
+					error(Constant.messages.getString("srm.error.required"));
+					return;
+				}
 				dialog.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 				updateProjects();
 				dialog.setCursor(Cursor.getDefaultCursor());

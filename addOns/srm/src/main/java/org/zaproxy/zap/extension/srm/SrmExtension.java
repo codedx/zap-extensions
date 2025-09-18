@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.srm;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 
@@ -115,7 +116,7 @@ public class SrmExtension extends ExtensionAdaptor {
         RequestConfig config = RequestConfig.custom().setConnectTimeout(getTimeout()).setSocketTimeout(getTimeout())
                 .setConnectionRequestTimeout(getTimeout()).build();
         return HttpClientBuilder.create()
-                .setSSLSocketFactory(SSLConnectionSocketFactoryFactory.getFactory(new URL(url).getHost(), this))
+                .setSSLSocketFactory(SSLConnectionSocketFactoryFactory.getFactory(URI.create(url).getHost(), this))
                 .setDefaultRequestConfig(config).build();
     }
 
@@ -129,7 +130,7 @@ public class SrmExtension extends ExtensionAdaptor {
         return HttpClientBuilder.create()
                 .setSSLSocketFactory(
                     SSLConnectionSocketFactoryFactory.getFactory(
-                            new URL(url).getHost(), this, fingerprint, acceptPermanently
+                            URI.create(url).getHost(), this, fingerprint, acceptPermanently
                     )
                 ).setDefaultRequestConfig(config).build();
     }

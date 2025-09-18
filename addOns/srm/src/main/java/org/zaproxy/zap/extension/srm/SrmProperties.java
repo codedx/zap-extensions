@@ -45,6 +45,7 @@ public class SrmProperties {
 	private static final Logger LOGGER = LogManager.getLogger(SrmProperties.class);
 	
 	private static final String PROP_FILE = "srm.properties";
+	private static final String FALLBACK_PROP_FILE = "codedx.properties";
 	private static final String KEY_SERVER = "serverUrl";
 	private static final String KEY_API = "apiKey";
 	private static final String KEY_SELECTED = "selectedId";
@@ -97,10 +98,16 @@ public class SrmProperties {
 		
 		File f = Paths.get(Constant.getZapHome(), PROP_FILE).toFile();
 		if(!f.exists()){
-			try {
-				f.createNewFile();
-			} catch (IOException e) {
-				LOGGER.error("Error creating srm.properties file: ", e);
+			// Try fallback
+			File fallback = Paths.get(Constant.getZapHome(), FALLBACK_PROP_FILE).toFile();
+			if (fallback.exists()) {
+				f = fallback;
+			} else {
+				try {
+					f.createNewFile();
+				} catch (IOException e) {
+					LOGGER.error("Error creating srm.properties file: ", e);
+				}
 			}
 		}
 		
@@ -112,7 +119,8 @@ public class SrmProperties {
 			}
 		}
 	}
-	
+
+
 	private void saveProperties(){		
 		File f = Paths.get(Constant.getZapHome(), PROP_FILE).toFile();
 		try(FileOutputStream out = new FileOutputStream(f)){
