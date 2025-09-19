@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 ### Changed
+- Address potential false positives with the XSLT Injection scan rule when payloads cause a failure which may still contain the expected evidence.
+
+## [74] - 2025-09-18
+### Added
+- QA CICD policy tag to selected rules.
+
+### Changed
+- Update alert references to latest locations to fix 404s and resolve redirections.
+- The SQL Injection - Oracle (Time Based) rule now uses DBMS_SESSION.SLEEP instead of an "expensive" query.
+
+### Fixed
+- Hidden Files rule raising false positives if server returning 200 for files that don't exist (Issue 8434).
+
+## [73] - 2025-09-02
+### Changed
 - Maintenance changes.
 - Depends on an updated version of the Common Library add-on.
 - The following scan rules and their alerts have been renamed to clarify that they're time based (Issue 7341).
@@ -17,6 +32,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - The Remote OS Command Injection scan rule has been broken into two rules; one feedback based, and one time based (Issue 7341). This includes assigning the time based rule ID 90037.
 - The External Redirect scan rule payload were slightly re-ordered to prioritize HTTPS variants.
 - For Alerts raised by the SQL Injection scan rules the Attack field values are now simply the payload, not an assembled description.
+- The Cross Site Scripting (Reflected) scan rule was updated to address potential false negatives when the injection context is a tag name and there is some filtering.
+- The Path Traversal scan rule now includes further details when directory matches are made (Issue 8379).
+- Add help details about behavior of scan rules which leverage OAST (Issue 8682).
 
 ### Added
 - Rules (as applicable) have been tagged in relation to HIPAA and PCI DSS.
@@ -612,6 +630,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
 
+[74]: https://github.com/zaproxy/zap-extensions/releases/ascanrules-v74
+[73]: https://github.com/zaproxy/zap-extensions/releases/ascanrules-v73
 [72]: https://github.com/zaproxy/zap-extensions/releases/ascanrules-v72
 [71]: https://github.com/zaproxy/zap-extensions/releases/ascanrules-v71
 [70]: https://github.com/zaproxy/zap-extensions/releases/ascanrules-v70

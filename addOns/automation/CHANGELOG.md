@@ -4,9 +4,20 @@ All notable changes to this add-on will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
+
+
+## [0.53.0] - 2025-09-18
+### Fixed
+- Correct Session Management script's path validation with variables.
+- Correct default value for Active Scan option `handleAntiCSRFTokens` in templates and help.
+
+## [0.52.0] - 2025-09-02
 ### Added
 - Support for step delay in Browser Based Authentication.
 - Support for min wait for in Client Script Authentication.
+- Support for url in activeScan job.
+- Support for stopping plans and jobs.
+- Allow selecting rules in policy definitions using alert tags.
 
 ### Changed
 - Refer to output panel for errors.
@@ -14,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Bug in handling headers with colons in the values.
 - Use default authentication poll frequency when none specified, if the value is less than one a progress warning occurs.
+- Do not warn if "enabled" or "alwaysRun" properties specified.
+- Use the authentication method's diagnostics state when creating a plan from a context.
 
 ## [0.51.0] - 2025-07-17
 ### Added
@@ -527,6 +540,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First version.
 
+[0.53.0]: https://github.com/zaproxy/zap-extensions/releases/automation-v0.53.0
+[0.52.0]: https://github.com/zaproxy/zap-extensions/releases/automation-v0.52.0
 [0.51.0]: https://github.com/zaproxy/zap-extensions/releases/automation-v0.51.0
 [0.50.0]: https://github.com/zaproxy/zap-extensions/releases/automation-v0.50.0
 [0.49.0]: https://github.com/zaproxy/zap-extensions/releases/automation-v0.49.0

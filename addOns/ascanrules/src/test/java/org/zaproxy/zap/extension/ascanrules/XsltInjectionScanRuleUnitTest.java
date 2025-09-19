@@ -19,12 +19,16 @@
  */
 package org.zaproxy.zap.extension.ascanrules;
 
+import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import fi.iki.elonen.NanoHTTPD.Response;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -32,6 +36,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.addon.commonlib.CommonAlertTag;
 import org.zaproxy.addon.commonlib.PolicyTag;
+import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.testutils.StaticContentServerHandler;
 
 /** Unit test for {@link XsltInjectionScanRule}. */
@@ -87,8 +92,18 @@ class XsltInjectionScanRuleUnitTest extends ActiveScannerTest<XsltInjectionScanR
         String path = "/shouldReportVendor";
         String vendorString = "Saxon-CE 1.1 from Saxonica";
 
-        this.nano.addHandler(
-                new StaticContentServerHandler(path, "<html>" + vendorString + "<html>"));
+        nano.addHandler(
+                new NanoServerHandler(path) {
+                    @Override
+                    protected Response serve(IHTTPSession session) {
+                        String value = getFirstParamValue(session, "name");
+                        if (value != null && value.contains("vedor")) {
+                            return newFixedLengthResponse(
+                                    "<!DOCTYPE html><html><body>Nothing to see here.</body></html>");
+                        }
+                        return newFixedLengthResponse("<html>" + vendorString + "<html>");
+                    }
+                });
 
         HttpMessage msg = this.getHttpMessage(path + "?name=test");
         rule.init(msg, this.parent);
@@ -103,43 +118,30 @@ class XsltInjectionScanRuleUnitTest extends ActiveScannerTest<XsltInjectionScanR
     }
 
     @Test
-    void shouldNotAlertIfResponseContainsAllowedVendorString() throws Exception {
+    void shouldNotAlertIfResponsesBothContainVendorString() throws Exception {
         // Given
-        String path = "/shouldNotReportAllowedVendor";
-        String okVendorString = "Microsoft-Azure-Application-Gateway/v2";
+        String path = "/";
+        String vendorString = "Apache Xalan";
 
-        this.nano.addHandler(
-                new StaticContentServerHandler(path, "<html>" + okVendorString + "<html>"));
+        nano.addHandler(
+                new NanoServerHandler(path) {
+                    @Override
+                    protected Response serve(IHTTPSession session) {
+                        String value = getFirstParamValue(session, "name");
+                        if (value != null && value.contains("vedor")) {
+                            return newFixedLengthResponse(
+                                    "<!DOCTYPE html><html><h3>Apache Tomcat/7.0.92</h3></body></html>");
+                        }
+                        return newFixedLengthResponse("<html>" + vendorString + "<html>");
+                    }
+                });
 
         HttpMessage msg = this.getHttpMessage(path + "?name=test");
         rule.init(msg, this.parent);
         // When
         rule.scan();
         // Then
-        assertThat(alertsRaised, hasSize(0));
-    }
-
-    @Test
-    void shouldAlertIfResponseContainsIrrelevantAllowedVendorString() throws Exception {
-        // Given
-        String path = "/shouldReportIrrelevantAllowedVendor";
-        String okVendorString = "Microsoft-Azure-Application-Gateway/v2";
-        String vendorString = "Apache";
-
-        this.nano.addHandler(
-                new StaticContentServerHandler(
-                        path, "<html>" + okVendorString + "<br>" + vendorString + "<html>"));
-
-        HttpMessage msg = this.getHttpMessage(path + "?name=test");
-        rule.init(msg, this.parent);
-        // When
-        rule.scan();
-        // Then
-        assertThat(alertsRaised, hasSize(1));
-        assertEquals(alertsRaised.get(0).getName(), "XSLT Injection");
-        assertThat(alertsRaised.get(0).getEvidence(), is("Apache"));
-        assertEquals(alertsRaised.get(0).getRisk(), Alert.RISK_MEDIUM);
-        assertThat(alertsRaised.get(0).getParam(), is("name"));
+        assertThat(alertsRaised, is(empty()));
     }
 
     @Test
@@ -151,7 +153,7 @@ class XsltInjectionScanRuleUnitTest extends ActiveScannerTest<XsltInjectionScanR
         // Then
         assertThat(cwe, is(equalTo(91)));
         assertThat(wasc, is(equalTo(23)));
-        assertThat(tags.size(), is(equalTo(12)));
+        assertThat(tags.size(), is(equalTo(13)));
         assertThat(
                 tags.containsKey(CommonAlertTag.OWASP_2021_A03_INJECTION.getTag()),
                 is(equalTo(true)));
@@ -161,8 +163,10 @@ class XsltInjectionScanRuleUnitTest extends ActiveScannerTest<XsltInjectionScanR
         assertThat(tags.containsKey(CommonAlertTag.HIPAA.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(CommonAlertTag.PCI_DSS.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.API.getTag()), is(equalTo(true)));
+        assertThat(tags.containsKey(PolicyTag.DEV_CICD.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.DEV_STD.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.DEV_FULL.getTag()), is(equalTo(true)));
+        assertThat(tags.containsKey(PolicyTag.QA_CICD.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.QA_STD.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.QA_FULL.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.SEQUENCE.getTag()), is(equalTo(true)));
@@ -184,11 +188,5 @@ class XsltInjectionScanRuleUnitTest extends ActiveScannerTest<XsltInjectionScanR
         Alert alert = alerts.get(0);
         assertThat(alert.getConfidence(), is(equalTo(Alert.CONFIDENCE_MEDIUM)));
         assertThat(alert.getAlertRef(), is(equalTo("90017")));
-    }
-
-    @Test
-    @Override
-    public void shouldHaveValidReferences() {
-        super.shouldHaveValidReferences();
     }
 }

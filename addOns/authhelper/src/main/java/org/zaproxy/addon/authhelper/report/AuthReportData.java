@@ -24,10 +24,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
@@ -38,8 +40,11 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.addon.authhelper.internal.db.Diagnostic;
 import org.zaproxy.addon.authhelper.internal.db.TableJdo;
+import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.model.StructuralNode;
 
 @Getter
 @Setter
@@ -53,6 +58,7 @@ public class AuthReportData implements Closeable {
         OVERALL("overall.failed"),
         PASS_COUNT("pass.count.failed"),
         SESSION_MGMT("sessmgmt.failed"),
+        LOGGED_IN("loggedin.failed"),
         LOGIN_FAILURES("login.failures"),
         AF_PLAN_ERRORS("afplan.errors"),
         NO_SUCCESSFUL_LOGINS("no.successful.logins"),
@@ -73,12 +79,13 @@ public class AuthReportData implements Closeable {
     private boolean validReport;
     private String afEnv;
     private List<SummaryItem> summaryItems = new ArrayList<>();
-    private Map<String, StatsItem> statistics = new TreeMap<>();
+    private List<StatsItem> statistics = new ArrayList<>();
     private List<String> nextSteps = new ArrayList<>();
     private PersistenceManager pm;
     private List<Diagnostic> diagnostics;
     private List<FailureDetail> failureDetails;
     private List<String> afPlanErrors = new ArrayList<>();
+    private Set<String> domains;
 
     public void addSummaryItem(boolean passed, String key, String description) {
         summaryItems.add(new SummaryItem(passed, key, description));
@@ -91,16 +98,41 @@ public class AuthReportData implements Closeable {
         failureDetails.add(detail);
     }
 
+    public Set<String> getDomains() {
+        if (domains != null) {
+            return domains;
+        }
+
+        Set<String> temp = new TreeSet<>();
+        Iterator<StructuralNode> iter =
+                SessionStructure.getRootNode(Model.getSingleton()).getChildIterator();
+        while (iter.hasNext()) {
+            temp.add(iter.next().getName());
+        }
+
+        domains = temp;
+        return domains;
+    }
+
     public boolean hasFailureDetails() {
         return failureDetails != null && !failureDetails.isEmpty();
     }
 
     public void addStatsItem(String key, String scope, long value) {
-        statistics.put(key, new StatsItem(key, scope, value));
+        addStatsItem(key, scope, null, value);
+    }
+
+    public void addStatsItem(String key, String scope, String site, long value) {
+        statistics.add(new StatsItem(key, scope, site, value));
+    }
+
+    List<StatsItem> getStatisticsImpl() {
+        return statistics;
     }
 
     public Object[] getStatistics() {
-        return statistics.values().toArray();
+        Collections.sort(statistics, (a, b) -> a.key().compareTo(b.key));
+        return statistics.toArray();
     }
 
     public List<Diagnostic> getDiagnostics() {
@@ -151,5 +183,10 @@ public class AuthReportData implements Closeable {
 
     public record SummaryItem(boolean passed, String key, String description) {}
 
-    public record StatsItem(String key, String scope, long value) {}
+    public record StatsItem(String key, String scope, String site, long value) {
+
+        public StatsItem(String key, String scope, long value) {
+            this(key, scope, null, value);
+        }
+    }
 }

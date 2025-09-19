@@ -29,12 +29,25 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.zaproxy.addon.commonlib.CommonAlertTag;
 import org.zaproxy.addon.commonlib.PolicyTag;
+import org.zaproxy.addon.network.common.ZapSocketTimeoutException;
+import org.zaproxy.zap.testutils.AlertReferenceError;
 
 class CrossDomainScanRuleUnitTest extends ActiveScannerTest<CrossDomainScanRule> {
 
     @Override
     protected CrossDomainScanRule createScanner() {
         return new CrossDomainScanRule();
+    }
+
+    @Override
+    public boolean isAllowedReferenceError(
+            AlertReferenceError.Cause cause, String reference, Object detail) {
+        if (reference.startsWith("https://www.adobe.com/")
+                && detail instanceof ZapSocketTimeoutException) {
+            // Reference behind CDN which times out when accessed through CI.
+            return true;
+        }
+        return false;
     }
 
     @Test
@@ -81,11 +94,5 @@ class CrossDomainScanRuleUnitTest extends ActiveScannerTest<CrossDomainScanRule>
         assertThat(adobeSend.getAlertRef(), is(equalTo("20016-2")));
         Alert silverlight = alerts.get(2);
         assertThat(silverlight.getAlertRef(), is(equalTo("20016-3")));
-    }
-
-    @Test
-    @Override
-    public void shouldHaveValidReferences() {
-        super.shouldHaveValidReferences();
     }
 }

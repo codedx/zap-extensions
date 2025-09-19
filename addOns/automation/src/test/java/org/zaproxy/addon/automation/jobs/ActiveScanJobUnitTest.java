@@ -419,7 +419,6 @@ class ActiveScanJobUnitTest {
         ActiveScanJob job = new ActiveScanJob();
         AutomationProgress progress = new AutomationProgress();
         LinkedHashMap<String, String> data = new LinkedHashMap<>();
-        data.put("name", "blah");
         data.put("tests", "");
         // The only invalid one
         data.put("unexpected", "data");
@@ -793,5 +792,56 @@ class ActiveScanJobUnitTest {
         assertThat(
                 progress.getWarnings().get(0), is(equalTo("!automation.error.ascan.threshold!")));
         assertThat(progress.hasErrors(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldVerifyParameters() {
+        // Given
+        AutomationEnvironment env = mock(AutomationEnvironment.class);
+        given(env.getAllUserNames()).willReturn(List.of("user0", "user1"));
+        ActiveScanJob job = new ActiveScanJob();
+        job.setEnv(env);
+        AutomationProgress progress = new AutomationProgress();
+
+        String yamlStr =
+                """
+                    parameters:
+                      context: "context1"
+                      user: "user1"
+                      policy: "policy1"
+                      maxRuleDurationInMins: 1
+                      maxScanDurationInMins: 10
+                      addQueryParam: true
+                      defaultPolicy: "policy2"
+                      delayInMs: 10
+                      handleAntiCSRFTokens: true
+                      injectPluginIdInHeader: true
+                      scanHeadersAllRequests: true
+                      threadPerHost: 2
+                      maxAlertsPerRule: 5
+                """;
+
+        Object data = new Yaml().load(yamlStr);
+        job.setJobData(((LinkedHashMap<?, ?>) data));
+
+        // When
+        job.verifyParameters(progress);
+
+        // Then
+        assertThat(progress.hasWarnings(), is(equalTo(false)));
+        assertThat(progress.hasErrors(), is(equalTo(false)));
+        assertThat(job.getParameters().getContext(), is(equalTo("context1")));
+        assertThat(job.getParameters().getUser(), is(equalTo("user1")));
+        assertThat(job.getParameters().getPolicy(), is(equalTo("policy1")));
+        assertThat(job.getParameters().getMaxRuleDurationInMins(), is(equalTo(1)));
+        assertThat(job.getParameters().getMaxScanDurationInMins(), is(equalTo(10)));
+        assertThat(job.getParameters().getAddQueryParam(), is(equalTo(true)));
+        assertThat(job.getParameters().getDefaultPolicy(), is(equalTo("policy2")));
+        assertThat(job.getParameters().getDelayInMs(), is(equalTo(10)));
+        assertThat(job.getParameters().getHandleAntiCSRFTokens(), is(equalTo(true)));
+        assertThat(job.getParameters().getInjectPluginIdInHeader(), is(equalTo(true)));
+        assertThat(job.getParameters().getScanHeadersAllRequests(), is(equalTo(true)));
+        assertThat(job.getParameters().getThreadPerHost(), is(equalTo(2)));
+        assertThat(job.getParameters().getMaxAlertsPerRule(), is(equalTo(5)));
     }
 }

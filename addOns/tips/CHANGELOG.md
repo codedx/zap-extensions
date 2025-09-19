@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 
 
+## [15] - 2025-09-10
+### Changed
+- Change IRC tip to reference Slack.
+
 ## [14] - 2025-01-10
 ### Changed
 - Update minimum ZAP version to 2.16.0.
@@ -75,6 +79,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First version
 
+[15]: https://github.com/zaproxy/zap-extensions/releases/tips-v15
 [14]: https://github.com/zaproxy/zap-extensions/releases/tips-v14
 [13]: https://github.com/zaproxy/zap-extensions/releases/tips-v13
 [12]: https://github.com/zaproxy/zap-extensions/releases/tips-v12

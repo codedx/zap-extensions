@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Unreleased
 
+
+## [46] - 2025-09-10
+
 ### Fixed
 - Warn logs to always include stack trace.
+- Correct generation of empty object.
 
 ## [45] - 2025-03-24
 ### Fixed
@@ -343,6 +347,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - First Version
 
+[46]: https://github.com/zaproxy/zap-extensions/releases/openapi-v46
 [45]: https://github.com/zaproxy/zap-extensions/releases/openapi-v45
 [44]: https://github.com/zaproxy/zap-extensions/releases/openapi-v44
 [43]: https://github.com/zaproxy/zap-extensions/releases/openapi-v43

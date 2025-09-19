@@ -82,7 +82,6 @@ var addOns =
         "packscanrules",
         "paramdigger",
         "plugnhack",
-        "portscan",
         "postman",
         "pscan",
         "pscanrules",

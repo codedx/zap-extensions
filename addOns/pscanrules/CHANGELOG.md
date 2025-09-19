@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## Unreleased
 
 
+## [67] - 2025-09-18
+### Changed
+- Add alert references to HTTP Server Response Header scan rule alerts (Issue 7100, 9050).
+- Update alert references to latest locations to fix 404s and resolve redirections.
+
 ## [66] - 2025-07-25
 ### Added
 - The Reverse Tabnabbing and Retrieved from Cache scan rules now have CWE references.
@@ -623,6 +628,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
 
+[67]: https://github.com/zaproxy/zap-extensions/releases/pscanrules-v67
 [66]: https://github.com/zaproxy/zap-extensions/releases/pscanrules-v66
 [65]: https://github.com/zaproxy/zap-extensions/releases/pscanrules-v65
 [64]: https://github.com/zaproxy/zap-extensions/releases/pscanrules-v64

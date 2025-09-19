@@ -24,10 +24,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.addon.commonlib.http.ComparableResponse;
 import org.zaproxy.zap.authentication.AuthenticationCredentials;
 import org.zaproxy.zap.authentication.UsernamePasswordAuthenticationCredentials;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
@@ -43,10 +46,12 @@ public class VerificationRequestDetails {
     private boolean structuredResponse;
     private String evidence = "";
     private int contextId;
+    @Getter @Setter private boolean lowPriority;
 
     public VerificationRequestDetails() {
         this.msg = null;
         this.token = null;
+        this.lowPriority = true;
     }
 
     private static String urlEncode(String str) {
@@ -95,10 +100,9 @@ public class VerificationRequestDetails {
     }
 
     public boolean isConsistent(VerificationRequestDetails vrd) {
-        return this.getResponseCode() == vrd.getResponseCode()
-                && isStructuredResponse() == vrd.isStructuredResponse()
-                && isContainsUserDetails() == vrd.isContainsUserDetails()
-                && (getResponseSize() / 10) == (vrd.getResponseSize() / 10);
+        ComparableResponse cr1 = new ComparableResponse(this.getMsg(), "");
+        return isContainsUserDetails() == vrd.isContainsUserDetails()
+                && cr1.compareWith(new ComparableResponse(vrd.getMsg(), "")) > 0.8;
     }
 
     public boolean isIdentifiablyDifferent(VerificationRequestDetails vrd) {
@@ -195,6 +199,10 @@ public class VerificationRequestDetails {
 
         @Override
         public int compare(VerificationRequestDetails o1, VerificationRequestDetails o2) {
+            int result = Boolean.compare(o1.isLowPriority(), o2.isLowPriority());
+            if (result != 0) {
+                return -result;
+            }
             return Integer.compare(o1.getScore(), o2.getScore());
         }
     }

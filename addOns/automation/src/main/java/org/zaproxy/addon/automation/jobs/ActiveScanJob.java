@@ -27,9 +27,13 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteMap;
+import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.addon.automation.AutomationData;
 import org.zaproxy.addon.automation.AutomationEnvironment;
 import org.zaproxy.addon.automation.AutomationJob;
@@ -52,12 +56,14 @@ public class ActiveScanJob extends AutomationJob {
     private static final String PARAM_CONTEXT = "context";
     private static final String PARAM_POLICY = "policy";
     private static final String PARAM_USER = "user";
+    private static final String PARAM_URL = "url";
 
     private ExtensionActiveScan extAScan;
 
     private Parameters parameters = new Parameters();
     private PolicyDefinition policyDefinition = new PolicyDefinition();
     private Data data;
+    private boolean forceStop;
 
     public ActiveScanJob() {
         data = new Data(this, this.parameters, this.policyDefinition);
@@ -98,9 +104,7 @@ public class ActiveScanJob extends AutomationJob {
                             params, this.parameters, this.getName(), null, progress);
                     break;
                 case "policyDefinition":
-                case "name":
                 case "tests":
-                case "type":
                     // Handled before we get here
                     break;
                 default:
@@ -122,7 +126,7 @@ public class ActiveScanJob extends AutomationJob {
                 this.parameters,
                 JobUtils.getJobOptions(this, progress),
                 this.getName(),
-                new String[] {PARAM_POLICY, PARAM_CONTEXT, PARAM_USER},
+                new String[] {PARAM_POLICY, PARAM_CONTEXT, PARAM_USER, PARAM_URL},
                 progress,
                 this.getPlan().getEnv());
     }
@@ -163,6 +167,26 @@ public class ActiveScanJob extends AutomationJob {
         List<Object> contextSpecificObjects = new ArrayList<>();
         User user = this.getUser(this.getParameters().getUser(), progress);
 
+        String urlStr = parameters.getUrl();
+        try {
+            if (StringUtils.isNotEmpty(urlStr)) {
+                urlStr = env.replaceVars(urlStr);
+                URI uri = new URI(urlStr, true);
+                SiteMap tree = Model.getSingleton().getSession().getSiteTree();
+                SiteNode node = tree.findNode(uri);
+                if (node == null) {
+                    progress.error(
+                            Constant.messages.getString("automation.error.job.nourl", urlStr));
+                    return;
+                } else {
+                    target.setStartNode(node);
+                }
+            }
+        } catch (Exception e1) {
+            progress.error(Constant.messages.getString("automation.error.context.badurl", urlStr));
+            return;
+        }
+
         ScanPolicy scanPolicy = null;
         if (!StringUtils.isEmpty(this.getParameters().getPolicy())) {
             try {
@@ -181,6 +205,7 @@ public class ActiveScanJob extends AutomationJob {
             contextSpecificObjects.add(scanPolicy);
         }
 
+        forceStop = false;
         int scanId = this.getExtAScan().startScan(target, user, contextSpecificObjects.toArray());
 
         long endTime = Long.MAX_VALUE;
@@ -196,12 +221,11 @@ public class ActiveScanJob extends AutomationJob {
 
         // Wait for the active scan to finish
         ActiveScan scan;
-        boolean forceStop = false;
 
         while (true) {
             this.sleep(500);
             scan = this.getExtAScan().getScan(scanId);
-            if (scan.isStopped()) {
+            if (scan.isStopped() || forceStop) {
                 break;
             }
             if (!this.runMonitorTests(progress) || System.currentTimeMillis() > endTime) {
@@ -216,6 +240,11 @@ public class ActiveScanJob extends AutomationJob {
         progress.addJobResultData(createJobResultData(scanId));
 
         getExtAScan().setPanelSwitch(true);
+    }
+
+    @Override
+    public void stop() {
+        forceStop = true;
     }
 
     @Override
@@ -315,6 +344,7 @@ public class ActiveScanJob extends AutomationJob {
     public static class Parameters extends AutomationData {
         private String context = "";
         private String user = "";
+        private String url = "";
         private String policy = "";
         private Integer maxRuleDurationInMins = 0;
         private Integer maxScanDurationInMins = 0;

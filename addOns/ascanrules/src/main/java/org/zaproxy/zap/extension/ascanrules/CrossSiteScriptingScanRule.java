@@ -67,6 +67,7 @@ public class CrossSiteScriptingScanRule extends AbstractAppParamPlugin
         alertTags.put(PolicyTag.DEV_CICD.getTag(), "");
         alertTags.put(PolicyTag.DEV_STD.getTag(), "");
         alertTags.put(PolicyTag.DEV_FULL.getTag(), "");
+        alertTags.put(PolicyTag.QA_CICD.getTag(), "");
         alertTags.put(PolicyTag.QA_STD.getTag(), "");
         alertTags.put(PolicyTag.QA_FULL.getTag(), "");
         alertTags.put(PolicyTag.SEQUENCE.getTag(), "");
@@ -855,8 +856,9 @@ public class CrossSiteScriptingScanRule extends AbstractAppParamPlugin
         // In this case the parent effectively changes
         List<HtmlContext> context2 =
                 performAttack(msg, param, attackString1, context, HtmlContext.IGNORE_PARENT);
-        if (context2 == null) {
-            context2 = performAttack(msg, param, TAG_ONCLICK_ALERT, context, 0);
+
+        if (context2 == null || context2.isEmpty()) {
+            context2 = performAttack(msg, param, TAG_ONCLICK_ALERT, null, 0);
             if (context2 == null) {
                 return false;
             }
