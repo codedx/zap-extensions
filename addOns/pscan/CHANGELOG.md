@@ -5,11 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+
+## [0.5.0] - 2025-09-10
+
+### Changed
+- Updated Automation Framework template plans and help content for passiveScan-* jobs to be more consistent.
+
+## [0.4.0] - 2025-09-02
 ### Added
 - Allow to configure the option max body size through the API (Issue 8974).
+- Support for stopping the passiveScan-wait automation job.
 
 ### Changed
 - To only record `stats.pscan.<rule-name>` statistics for scanners that have no IDs.
+- To support other add-ons which manage passive scan rules. These rules will not currently be fully supported in the UI.
 
 ## [0.3.0] - 2025-06-20
 ### Changed
@@ -64,6 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `passiveScan-wait`
 - Dynamically un/load add-on passive scan rules (Issue 7959).
 
+[0.5.0]: https://github.com/zaproxy/zap-extensions/releases/pscan-v0.5.0
+[0.4.0]: https://github.com/zaproxy/zap-extensions/releases/pscan-v0.4.0
 [0.3.0]: https://github.com/zaproxy/zap-extensions/releases/pscan-v0.3.0
 [0.2.1]: https://github.com/zaproxy/zap-extensions/releases/pscan-v0.2.1
 [0.2.0]: https://github.com/zaproxy/zap-extensions/releases/pscan-v0.2.0

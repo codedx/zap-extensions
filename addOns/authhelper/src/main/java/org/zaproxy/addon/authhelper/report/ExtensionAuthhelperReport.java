@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -31,13 +32,16 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.zaproxy.addon.authhelper.AuthUtils;
+import org.zaproxy.addon.authhelper.AuthenticationDiagnostics;
 import org.zaproxy.addon.authhelper.AutoDetectSessionManagementMethodType;
 import org.zaproxy.addon.authhelper.BrowserBasedAuthenticationMethodType;
 import org.zaproxy.addon.authhelper.ClientScriptBasedAuthenticationMethodType;
+import org.zaproxy.addon.authhelper.internal.db.Diagnostic;
 import org.zaproxy.addon.authhelper.report.AuthReportData.FailureDetail;
 import org.zaproxy.addon.automation.AutomationEnvironment;
 import org.zaproxy.addon.automation.AutomationPlan;
 import org.zaproxy.addon.automation.AutomationProgress;
+import org.zaproxy.addon.automation.ExtensionAutomation;
 import org.zaproxy.addon.reports.ExtensionReports;
 import org.zaproxy.addon.reports.ReportData;
 import org.zaproxy.zap.authentication.AuthenticationHelper;
@@ -57,10 +61,34 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
             List.of(ExtensionReports.class);
     private static final Logger LOGGER = LogManager.getLogger(ExtensionAuthhelperReport.class);
 
+    private ExtensionAutomation extensionAutomation;
     private AuthReportDataHandler authReportDataHandler;
+    private AuthenticationDiagnostics.DiagnosticDataProvider diagnosticDataProvider;
 
     public ExtensionAuthhelperReport() {
         super(NAME);
+    }
+
+    @Override
+    public void init() {
+        extensionAutomation = AuthUtils.getExtension(ExtensionAutomation.class);
+        if (extensionAutomation != null) {
+            diagnosticDataProvider = this::addDiagnosticData;
+            AuthenticationDiagnostics.addDiagnosticDataProvider(diagnosticDataProvider);
+        }
+    }
+
+    private void addDiagnosticData(Diagnostic diagnostic) {
+        List<AutomationPlan> plans = extensionAutomation.getRunningPlans();
+        if (plans.isEmpty()) {
+            diagnostic.setAfPlan("");
+            return;
+        }
+        try {
+            diagnostic.setAfPlan(plans.get(plans.size() - 1).toYaml());
+        } catch (IOException e) {
+            LOGGER.warn("An error occurred while setting the AF plan:", e);
+        }
     }
 
     @Override
@@ -85,6 +113,10 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
         ExtensionReports extReports = AuthUtils.getExtension(ExtensionReports.class);
         if (authReportDataHandler != null) {
             extReports.removeReportDataHandler(authReportDataHandler);
+        }
+
+        if (diagnosticDataProvider != null) {
+            AuthenticationDiagnostics.removeDiagnosticDataProvider(diagnosticDataProvider);
         }
     }
 
@@ -147,7 +179,7 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
                             instanceof
                             AutoDetectSessionManagementMethodType
                                     .AutoDetectSessionManagementMethod);
-            boolean verificationPassed =
+            boolean verificationUrlIdentified =
                     !(AuthCheckingStrategy.AUTO_DETECT.equals(
                             authContext.getAuthenticationMethod().getAuthCheckingStrategy()));
 
@@ -177,6 +209,21 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
                                     instanceof
                                     ClientScriptBasedAuthenticationMethodType
                                             .ClientScriptBasedAuthenticationMethod;
+
+                    // Add all of the stats
+                    if (authMethod.getAuthCheckingStrategy() == AuthCheckingStrategy.POLL_URL
+                            && StringUtils.isNotEmpty(authMethod.getPollUrl())) {
+                        String pollHost =
+                                SessionStructure.getHostName(
+                                        new URI(authMethod.getPollUrl(), true));
+
+                        if (!hostname.equals(pollHost)) {
+                            addSiteStats(ard, inMemoryStats, pollHost);
+                        }
+                    }
+
+                    inMemoryStats.getStats("").forEach((k, v) -> ard.addStatsItem(k, "global", v));
+                    addSiteStats(ard, inMemoryStats, hostname);
 
                     if (authBBA || authClient) {
 
@@ -210,18 +257,21 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
                             ard.setAfPlanErrors(afProg.getErrors());
                         }
 
+                        boolean loggedIn = isLoggedIn(ard) && !isLoggedUnknown(ard);
+
                         boolean overallStatus =
                                 sessionPassed
-                                        && verificationPassed
+                                        && verificationUrlIdentified
                                         && (!authBBA || passedCount != null)
                                         && !hasAfErrors
-                                        && !hasMoreFailures;
+                                        && !hasMoreFailures
+                                        && loggedIn;
                         addSummaryItem(ard, "auth", overallStatus);
                         if (!overallStatus) {
                             if (!sessionPassed) {
                                 ard.addFailureDetail(FailureDetail.SESSION_MGMT);
                             }
-                            if (!verificationPassed) {
+                            if (!verificationUrlIdentified) {
                                 ard.addFailureDetail(FailureDetail.VERIF_IDENT);
                             }
                             if (!authBBA && passedCount == null) {
@@ -236,6 +286,10 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
                             if (hasAfErrors) {
                                 ard.addFailureDetail(FailureDetail.AF_PLAN_ERRORS);
                             }
+                            if (!loggedIn) {
+                                ard.addFailureDetail(FailureDetail.LOGGED_IN);
+                            }
+
                             // We got this far so did fail overall
                             if (!ard.hasFailureDetails()) {
                                 ard.addFailureDetail(FailureDetail.OVERALL);
@@ -261,18 +315,12 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
                                 ard,
                                 "auth",
                                 sessionPassed
-                                        && verificationPassed
+                                        && verificationUrlIdentified
                                         && inMemoryStats.getStat(
                                                         hostname,
                                                         AuthenticationHelper.AUTH_SUCCESS_STATS)
                                                 != null);
                     }
-
-                    // Add all of the stats
-                    inMemoryStats.getStats("").forEach((k, v) -> ard.addStatsItem(k, "global", v));
-                    inMemoryStats
-                            .getSiteStats(hostname, "")
-                            .forEach((k, v) -> ard.addStatsItem(k, "site", v));
 
                 } catch (Exception e) {
                     LOGGER.warn(e.getMessage(), e);
@@ -283,7 +331,7 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
             }
 
             addSummaryItem(ard, "session", sessionPassed);
-            addSummaryItem(ard, "verif", verificationPassed);
+            addSummaryItem(ard, "verif", verificationUrlIdentified);
 
             AutomationProgress progress = new AutomationProgress();
             AutomationEnvironment env = new AutomationEnvironment(progress);
@@ -294,6 +342,25 @@ public class ExtensionAuthhelperReport extends ExtensionAdaptor {
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
+        }
+
+        private static void addSiteStats(
+                AuthReportData ard, InMemoryStats inMemoryStats, String site) {
+            inMemoryStats
+                    .getSiteStats(site, "")
+                    .forEach((k, v) -> ard.addStatsItem(k, "site", site, v));
+        }
+
+        private static boolean isLoggedIn(AuthReportData ard) {
+            return hasStat(ard, AuthenticationMethod.AUTH_STATE_LOGGED_IN_STATS);
+        }
+
+        private static boolean hasStat(AuthReportData ard, String stat) {
+            return ard.getStatisticsImpl().stream().anyMatch(e -> stat.equals(e.key()));
+        }
+
+        private static boolean isLoggedUnknown(AuthReportData ard) {
+            return hasStat(ard, AuthenticationMethod.AUTH_STATE_UNKNOWN_STATS);
         }
     }
 }

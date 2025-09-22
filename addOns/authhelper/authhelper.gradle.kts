@@ -56,13 +56,13 @@ zapAddOn {
         dependencies {
             addOns {
                 register("commonlib") {
-                    version.set(">= 1.33.0 & < 2.0.0")
+                    version.set(">= 1.35.0 & < 2.0.0")
                 }
                 register("database") {
                     version.set(">=0.8.0 & < 1.0.0")
                 }
                 register("network") {
-                    version.set(">=0.6.0")
+                    version.set(">=0.23.0")
                 }
                 register("pscan") {
                     version.set(">= 0.1.0 & < 1.0.0")
@@ -71,7 +71,7 @@ zapAddOn {
                     version.set("15.*")
                 }
                 register("zest") {
-                    version.set(">=48.8.0")
+                    version.set(">=48.9.0")
                 }
             }
         }

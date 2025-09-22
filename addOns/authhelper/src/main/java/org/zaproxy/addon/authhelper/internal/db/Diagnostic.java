@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.jdo.annotations.Cacheable;
 import javax.jdo.annotations.Column;
+import javax.jdo.annotations.Element;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.Order;
 import javax.jdo.annotations.PersistenceCapable;
@@ -52,7 +53,11 @@ public class Diagnostic {
     @Column(length = 4194304)
     private String script;
 
+    @Column(length = 8388608)
+    private String afPlan;
+
     @Order(column = "NUMBER")
+    @Element(dependent = "true")
     @Persistent(mappedBy = "diagnostic")
     private List<DiagnosticStep> steps = new ArrayList<>();
 

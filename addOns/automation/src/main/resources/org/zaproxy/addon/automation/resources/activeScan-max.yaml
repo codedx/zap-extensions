@@ -2,13 +2,14 @@
     parameters:
       context:                         # String: Name of the context to attack, default: first context
       user:                            # String: An optional user to use for authentication, must be defined in the env
+      url:                             # String: The subtree to active scan, default: all URLs of the context
       policy:                          # String: Name of the scan policy to be used, default: Default Policy
       maxRuleDurationInMins:           # Int: The max time in minutes any individual rule will be allowed to run for, default: 0 unlimited
       maxScanDurationInMins:           # Int: The max time in minutes the active scanner will be allowed to run for, default: 0 unlimited
       addQueryParam:                   # Bool: If set will add an extra query parameter to requests that do not have one, default: false
       defaultPolicy:                   # String: The name of the default scan policy to use, default: Default Policy
       delayInMs:                       # Int: The delay in milliseconds between each request, use to reduce the strain on the target, default 0
-      handleAntiCSRFTokens:            # Bool: If set then automatically handle anti CSRF tokens, default: false
+      handleAntiCSRFTokens:            # Bool: If set then automatically handle anti CSRF tokens, default: true
       injectPluginIdInHeader:          # Bool: If set then the relevant rule Id will be injected into the X-ZAP-Scan-ID header of each request, default: false
       scanHeadersAllRequests:          # Bool: If set then the headers of requests that do not include any parameters will be scanned, default: false
       threadPerHost:                   # Int: The max number of threads per host, default: 2 * Number of available processor cores
@@ -16,6 +17,11 @@
     policyDefinition:                  # The policy definition - only used if the 'policy' is not set
       defaultStrength:                 # String: The default Attack Strength for all rules, one of Low, Medium, High, Insane (not recommended), default: Medium
       defaultThreshold:                # String: The default Alert Threshold for all rules, one of Off, Low, Medium, High, default: Medium
+      alertTags:                       # Add rules by alert tags; overrides default settings but not rules explicitly listed under "rules"
+        include: []                    # List of alert tags to include, regex supported
+        exclude: []                    # List of alert tags to exclude from the include list, regex supported
+        strength:                      # String: The Attack Strength for this set of rules, one of Low, Medium, High, Insane, default: Medium
+        threshold:                     # String: The Alert Threshold for this set of rules, one of Off, Low, Medium, High, default: Medium
       rules:                           # A list of one or more active scan rules and associated settings which override the defaults
       - id:                            # Int: The rule id as per https://www.zaproxy.org/docs/alerts/
         name:                          # Comment: The name of the rule for documentation purposes - this is not required or actually used

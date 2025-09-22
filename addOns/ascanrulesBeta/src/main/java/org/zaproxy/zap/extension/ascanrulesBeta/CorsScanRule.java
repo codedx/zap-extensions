@@ -59,6 +59,7 @@ public class CorsScanRule extends AbstractAppPlugin implements CommonActiveScanR
                                 CommonAlertTag.OWASP_2021_A01_BROKEN_AC,
                                 CommonAlertTag.OWASP_2017_A05_BROKEN_AC,
                                 CommonAlertTag.WSTG_V42_CLNT_07_CORS));
+        alertTags.put(PolicyTag.QA_CICD.getTag(), "");
         alertTags.put(PolicyTag.QA_STD.getTag(), "");
         alertTags.put(PolicyTag.QA_FULL.getTag(), "");
         alertTags.put(PolicyTag.PENTEST.getTag(), "");
@@ -147,7 +148,16 @@ public class CorsScanRule extends AbstractAppPlugin implements CommonActiveScanR
                 .setRisk(risk)
                 .setConfidence(Alert.CONFIDENCE_HIGH)
                 .setDescription(
-                        risk == Alert.RISK_INFO ? getDescription() : getConstantStr("vuln.desc"));
+                        risk == Alert.RISK_INFO ? getDescription() : getConstantStr("vuln.desc"))
+                .setAlertRef(
+                        getId()
+                                + "-"
+                                + switch (risk) {
+                                    case Alert.RISK_INFO -> "1";
+                                    case Alert.RISK_MEDIUM -> "2";
+                                    case Alert.RISK_HIGH -> "3";
+                                    default -> "";
+                                });
     }
 
     private static String getConstantStr(String suffix) {

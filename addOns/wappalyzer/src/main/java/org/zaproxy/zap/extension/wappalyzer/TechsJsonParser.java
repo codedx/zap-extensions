@@ -45,6 +45,7 @@ import java.util.regex.PatternSyntaxException;
 import javax.swing.ImageIcon;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.select.QueryParser;
@@ -56,7 +57,7 @@ public class TechsJsonParser {
     private static final String FIELD_CONFIDENCE = "confidence:";
     private static final String FIELD_VERSION = "version:";
     private static final String FIELD_SEPARATOR = "\\\\;";
-    private static final int SIZE = 16;
+    static final int SIZE = 16;
 
     private static final Logger LOGGER = LogManager.getLogger(TechsJsonParser.class);
     private final PatternErrorHandler patternErrorHandler;
@@ -103,11 +104,12 @@ public class TechsJsonParser {
         // Note: Based on testing having the forEach separate performs faster than chaining it
         futures.forEach(CompletableFuture::join);
         executor.shutdown();
-        Instant finish = Instant.now();
+        long loadTime = Duration.between(start, Instant.now()).toMillis();
         LOGGER.info(
-                "Loaded {} Tech Detection technologies, in {}ms",
+                "Loaded {} Tech Detection technologies, in {} ({}ms)",
                 techData.getApplications().size(),
-                Duration.between(start, finish).toMillis());
+                DurationFormatUtils.formatDurationWords(loadTime, true, true),
+                loadTime);
         return techData;
     }
 
@@ -404,6 +406,9 @@ public class TechsJsonParser {
                     }
                 }
             }
+        } else if (json instanceof JSONArray) {
+            // DOM Pattern JSONArrays are ignored here
+            // They will be added as Simple DOM Patterns
         } else {
             LOGGER.debug(
                     "Unexpected JSON type for {} pattern: {} {}",

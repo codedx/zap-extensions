@@ -56,7 +56,7 @@ class GetForPostScanRuleUnitTest extends ActiveScannerTest<GetForPostScanRule> {
         // Then
         assertThat(cwe, is(equalTo(16)));
         assertThat(wasc, is(equalTo(20)));
-        assertThat(tags.size(), is(equalTo(6)));
+        assertThat(tags.size(), is(equalTo(7)));
         assertThat(
                 tags.containsKey(CommonAlertTag.OWASP_2021_A04_INSECURE_DESIGN.getTag()),
                 is(equalTo(true)));
@@ -66,6 +66,7 @@ class GetForPostScanRuleUnitTest extends ActiveScannerTest<GetForPostScanRule> {
         assertThat(
                 tags.containsKey(CommonAlertTag.WSTG_V42_CONF_06_HTTP_METHODS.getTag()),
                 is(equalTo(true)));
+        assertThat(tags.containsKey(PolicyTag.QA_CICD.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.QA_STD.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.QA_FULL.getTag()), is(equalTo(true)));
         assertThat(tags.containsKey(PolicyTag.PENTEST.getTag()), is(equalTo(true)));
@@ -130,12 +131,6 @@ class GetForPostScanRuleUnitTest extends ActiveScannerTest<GetForPostScanRule> {
         assertThat(alert.getRisk(), is(equalTo(Alert.RISK_INFO)));
         assertThat(alert.getConfidence(), is(equalTo(Alert.CONFIDENCE_HIGH)));
         assertThat(alert.getEvidence(), is(equalTo("HTTP/1.0 200")));
-    }
-
-    @Test
-    @Override
-    public void shouldHaveValidReferences() {
-        super.shouldHaveValidReferences();
     }
 
     private HttpMessage createMsg(String testPath, String response)
