@@ -3,7 +3,7 @@
 <toc version="2.0">
 	<tocitem text="ZAP User Guide" tocid="toplevelitem">
 		<tocitem text="Add Ons" tocid="addons">
-			<tocitem text="Code Dx" image="srm-icon" target="srm"/>
+			<tocitem text="Software Risk Manager" image="srm-icon" target="srm"/>
 		</tocitem>
 	</tocitem>
 </toc>
