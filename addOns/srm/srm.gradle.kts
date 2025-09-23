@@ -1,6 +1,6 @@
 import org.zaproxy.gradle.addon.AddOnStatus
-description = "Includes request and response data in XML reports and provides the ability to upload reports directly to a Software Risk Manager server"
-
+description = "Includes request and response data in XML reports and provides the ability to upload reports " +
+        "directly to a Software Risk Manager server"
 zapAddOn {
     addOnName.set("Software Risk Manager Extension")
     addOnStatus.set(AddOnStatus.RELEASE)
