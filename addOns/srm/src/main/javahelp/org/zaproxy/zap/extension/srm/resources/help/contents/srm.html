@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>
+Software Risk Manager
+</TITLE>
+</HEAD>
+<BODY>
+<H1>Software Risk Manager</H1>
+The Software Risk Manager add-on allows you to generate compatible reports and upload them to a Software Risk Manager server. There are two options under the Report menu.
+<p>
+Contributed by <a href="https://www.blackduck.com/">https://www.blackduck.com/</a>
+
+<H2>Software Risk Manager: Upload Report</H2>
+This option will generate a report for you and upload it to a Software Risk Manager server. Selecting it will prompt you for the Server URL and API Key. After populating the fields, click the refresh button to get a list of projects available to the API Key. Then click the Upload button to send results to the Software Risk Manager server.
+
+<H2>Software Risk Manager: Generate XML Report</H2>
+This option will generate a standard XML report that includes the HTTP request and response data.
+
+<H1>API</H1>
+<H2>Actions</H2>
+
+<H3>uploadReport</H3>
+Uploads a report to Software Risk Manager. Note that uploading an empty report with no alerts will cause an Exception to be thrown as Software Risk Manager won't be able to read it and will return a non-200 response.
+<br><br>
+<I>Parameters</I>
+<UL>
+    <LI>filePath: Absolute path to the report file</LI>
+    <LI>serverUrl: Software Risk Manager server URL</LI>
+    <LI>codeDxApiKey: Software Risk Manager API Key</LI>
+    <LI>projectId: Software Risk Manager Project ID</LI>
+    <LI>fingerprint: Optional SHA1 hash of an invalid certificate to make an exception for</LI>
+    <LI>acceptPermanently: Optional boolean for if the exception should be stored permanently in a truststore file.</LI>
+</UL>
+<I>Returns</I>
+<br>
+"OK" if the report is uploaded successfully.
+
+<H3>generateAndUpload</H3>
+Generates a Software Risk Manager report, saves it to a temporary file, uploads to Software Risk Manager, then deletes the file.
+<br><br>
+<I>Parameters</I>
+<UL>
+    <LI>serverUrl: Software Risk Manager server URL</LI>
+    <LI>codeDxApiKey: Software Risk Manager API Key</LI>
+    <LI>projectId: Software Risk Manager Project ID</LI>
+    <LI>fingerprint: Optional SHA1 hash of an invalid certificate to make an exception for</LI>
+    <LI>acceptPermanently: Optional boolean for if the exception should be stored permanently in a truststore file.</LI>
+</UL>
+<I>Returns</I>
+<br>
+"OK" if the report is uploaded successfully.
+<br>
+"EMPTY" if the generated report is empty. The report will not be uploaded to Software Risk Manager.
+
+<H2>Views</H2>
+<H3>generateReport</H3>
+Generates an XML report with request and response data.
+<br><br>
+<I>Returns</I>
+<br>
+An XML report String.
+</BODY>
+</HTML>
