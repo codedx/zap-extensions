@@ -7,7 +7,7 @@ description = (
 
 zapAddOn {
     addOnName.set("Software Risk Manager Extension")
-    addOnStatus.set(AddOnStatus.RELEASE)
+    addOnStatus.set(AddOnStatus.ALPHA)
 
     manifest {
         author.set("Black Duck, Inc.")
