@@ -186,7 +186,7 @@ subprojects {
             zapVersion.set("2.16.0")
 
             changesFile.set(tasks.named<ConvertMarkdownToHtml>("generateManifestChanges").flatMap { it.html })
-            repo.set("https://github.com/zaproxy/zap-extensions/")
+            repo.set("https://github.com/codedx/zap-extensions/")
         }
 
         apiClientGen {
