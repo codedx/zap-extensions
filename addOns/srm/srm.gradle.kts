@@ -11,7 +11,7 @@ zapAddOn {
 
     manifest {
         author.set("Black Duck, Inc.")
-        url.set("https://www.zaproxy.org/docs/desktop/addons/srm/")
+        url.set("https://www.zaproxy.org/docs/desktop/addons/software-risk-manager/")
     }
 }
 
